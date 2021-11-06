@@ -166,7 +166,7 @@ At the end of the day though, I found a functioning one on the internet and we w
 
 Once the bot checked if the link was fraudulent and it found it to be fraudulent, something had to be done.
 I basically made it log a message to a channel, and if enabled in the config, instantly ban the person and delete their recent messages.
-Before the instant bad, I had the courtesy to message them that they were going to be banned. 
+Before the instant ban, I had the courtesy to message them that they were going to be banned. 
 So when or if the person gets their compromised account back, they'll know what happened.
 
 And it worked so well!
