@@ -24,8 +24,8 @@ If not, feel free to skip to wherever you want.
 - [Phase 1: Developing the algorithm](#phase-1-developing-the-algorithm)
 - [Phase 2: Implementing the algorithm in a bot](#phase-2-implementing-the-algorithm-in-a-bot)
 - [Results](#results)
-- [What's next](#whats-next)
 - [Installation](#installation)
+- [What's next](#whats-next)
 
 ***Note:** This blog post contains domains associated to fraud. 
 DO NOT VISIT LINKS IN CODE BLOCKS.
@@ -209,3 +209,71 @@ If only it were that simple.
 Some domains could not be resolved by DNS. 
 This made my GET request incredibly slow as I had to wait for timeouts, and setting the request timeout did nothing.
 So in the end, I had to first see if I can resolve the domain (with a short timeout!), and only then check for redirects.
+
+## Results
+
+### Benchmarks
+
+There were no cases of false negatives and some false positives during my beta testing (i.e. figuring out a good config with thresholds).
+The final configuration I created produced **no false positives or false negatives**.
+This was using ~25 scam links that we collected (some of the domains are not unique, but the links are), and [a bunch of random + selected challenging links](https://pastebin.com/ikzL20sR).
+
+### Performance in production
+
+I introduced *AndyInAction* with banning enabled to the world on the 16th of October.
+Since then (until the date of publishing):
+- **1943** links were sent in the server.
+- **18** unique people were automatically picked up and banned.
+- **0** false bans have occurred.
+- **A single link** was not detected.
+We had to lower a threshold by `3%` and then it got picked up.
+
+That's absolutely *bonkers*!
+
+No, seriously, that's ridiculous. 
+Our `@Staff` pings regarding scam links reduced to 0, excluding that link (+ the redirects before that checker was implemented).
+The robots have taken over our job!
+Perhaps we will finally have a way to combat these scammers, since both the technical measures and awareness that Discord are pushing clearly is not enough to counter the problem.
+
+## Installation
+
+In order to use [*AndyInAction*](https://github.com/Arraying/AndyInAction) on your server, you have to:
+1. Make a bot account and add it to your server.
+2. Clone the repository.
+3. Create the `bot.json` config and fill it out.
+4. Create the `config.json` config and fill it out.
+5. Install the requirements for it to run.
+6. Run the bot.
+
+The installation instructions and bot config template is found [here](https://github.com/Arraying/AndyInAction#installation-configuration--usage).
+I do however have one gift for you.
+Filling out the `config.json` and configuring it is quite tedious.
+Below is the configuration that I personally use on my servers.
+
+```json
+{
+  "domain": {
+    "discord": ["co" ,"com", "design", "dev", "gg", "gift", "media", "new", "store", "tools"],
+    "discordapp": ["com", "io", "net"],
+    "discordmerch": ["com"],
+    "discordpartygames": ["com"],
+    "discord-activities": ["com"],
+    "discordactivities": ["com"],
+    "discordcdn": ["com"],
+    "discordsays": ["com"],
+    "discordstatus": ["com"],
+    "steamcommunity": ["com"],
+    "steampowered": ["com"]
+  },
+  "domain_threshold": 0.77,
+  "domain_keywords": ["nitro", "gift", "airdrop"],
+  "domain_keywords_threshold": 0.4,
+  "path": ["nitro", "gift", "airdrop", "trade", "tradeoffer"],
+  "path_threshold": 0.9,
+  "path_split": false,
+  "query": ["gift", "partner"],
+  "query_threshold": 0.9,
+  "query_split": false
+}
+```
+
