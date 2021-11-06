@@ -26,6 +26,7 @@ If not, feel free to skip to wherever you want.
 - [Results](#results)
 - [Installation](#installation)
 - [What's next](#whats-next)
+- [Final remarks](#final-remarks)
 
 ***Note:** This blog post contains domains associated to fraud. 
 DO NOT VISIT LINKS IN CODE BLOCKS.
@@ -238,7 +239,7 @@ Perhaps we will finally have a way to combat these scammers, since both the tech
 ## Installation
 
 In order to use [*AndyInAction*](https://github.com/Arraying/AndyInAction) on your server, you have to:
-1. Make a bot account and add it to your server.
+1. [Make a bot account and add it to your server](https://discordpy.readthedocs.io/en/stable/discord.html).
 2. Clone the repository.
 3. Create the `bot.json` config and fill it out.
 4. Create the `config.json` config and fill it out.
@@ -277,3 +278,32 @@ Below is the configuration that I personally use on my servers.
 }
 ```
 
+## What's next
+
+Now that I have a basic bot, the main thing I can do is to sit back and monitor for any changes in the scene and false positive/negatives.
+However, there are also various other things that I have planned.
+
+### Machine learning revisited
+
+While using ML to detect if a URL is fraudulent is something I determined not to be too effective for my case, there is still the option to train the thresholds in the config with ML.
+However, I can potentially build something with the values that Levenshtein spits out.
+If I have the normalized Levenshtein distance for the main domain, the (max value of) the path, querystring, etc. then I could possibly train a classifier.
+I doubt this will perform better than what I have working right now, but in the future if I need to compromise on false positive and false negatives ML starts to look like a much more viable solution.
+
+### Making the bot accessible
+
+Currently, installing the bot requires at least some sort of technical know-how.
+I want to look into making it easier for server owners with little programming knowledge to install and configure the bot, through a more comprehensive guide, YouTube tutorials, etc.
+
+What would be even nicer is some form of public bot that users can invite.
+Currently I lack the time to do this, unless this is definitely something that will work and will have widespread usage.
+Honestly though, maintaining public bots is kind of tedious.
+If nobody is interested in this option, then there is no point.
+
+## Final remarks
+
+I hope this post was somewhat interesting to you, and you learned something/got inspired by it.
+If you have any feedback, feel free to message me on Discord (`Arraying#7363`, I accept pretty much all friend requests).
+If you have any ideas on how to improve the bot/develop it further, feel free to message me on Discord or leave a GitHub issue ([link for issues regarding the bot](https://github.com/Arraying/AndyInAction/issues), and [link for issues regarding the algorithm](https://github.com/Arraying/Andy/issues)).
+
+Stay safe out there.
