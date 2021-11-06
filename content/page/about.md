@@ -15,11 +15,14 @@ Sometimes I feel like a functional programming language.
 I really vibe with lazy evaluation.
 My pet peeve is wasting time/effort/productivity.
 
+I currently live in the Netherlands.
+I speak both German and English fluently, *maar mijn nederlands is heel slecht*.
+
 ### My goal
 
 The goal of this blog is to explore issues that are facing me as a person and software developer.
 Ultimately, I want to talk about my experiences in developing tools for the greater good of consumers and developers.
-However, this blog will probably also feature qutie a lot of interesting problems I encountered and how I solved them.
+However, this blog will probably also feature quite a lot of interesting problems I encountered and how I solved them.
 
 
 ### Languages
