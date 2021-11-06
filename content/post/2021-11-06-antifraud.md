@@ -3,7 +3,7 @@ title: "Building the Best Anti-Fraud Bot You've Never Heard Of"
 author: ""
 type: ""
 date: 2021-11-06T18:30:54+01:00
-subtitle: "An adventurous dive into the world of fraudulent links"
+subtitle: "An adventurous dive into the world of fraudulent Steam/Discord links"
 image: ""
 tags: ["python", "andy"]
 ---
@@ -12,6 +12,8 @@ I made a Discord bot that will automatically detect fraudulent Steam/Nitro links
 The impressive part: it works on never-before seen links, and its false-positive and false-negative rate is *ridiculously* low.
 It's totally open source and you can protect your server too!
 Check out the [Installation](#installation) section if you are interested.
+
+---
 
 This post is quite technical.
 If you're interested in how I developed this idea, then you are in for a treat.
@@ -29,6 +31,8 @@ If not, feel free to skip to wherever you want.
 DO NOT VISIT LINKS IN CODE BLOCKS.
 THEY ARE FRAUDULENT LINKS.
 All sites that are safe in this post are **hyperlinked**.*
+
+---
 
 ## The plague
 
@@ -56,7 +60,7 @@ You can't build an effective anti-fraud algorithm without knowing what kind of d
 Thankfully, one of my fellow staff members was kind enough to provide me with a list of domains.
 
 An exerpt can be seen below:
-```
+```txt
 https://dlsc​ord.or​g/information-nitro
 ht​tps://discordap​p.click/free/nitro
 htt​ps://steamcommu​nity-nitro.ru/general
@@ -103,10 +107,18 @@ Here's a buzzword for you: machine learning.
 I read a few papers on using machine learning to detect fraudulent URLs.
 However, while ML is definitely incredibly powerful, it still wasn't enough for this.
 
-There were three main problems I came across
-1. **Training.** I had ridiculously little scam links, so training the algorithm becomes a problem. In addtion to this, there are only maybe two or three legitimate links for Discord and Steam each. With such little data, it would be incredibly difficult to train a model that does not overfit.
-2. **Features.** A lot of the research papers I came across used upwards of 20 features. This amplifies my training problem due to the curse of dimensionality. But even worse, I didn't even have a lot of the features they used to work with. For example, they used the length of the domain (i.e. to combat random character mash domains) or if the domain was an IP address. Neither of those applied to me.
-3. **Performance.** Machine learning can be really accurate in their  detection, if done right. That being said, there is a reason why many video game anticheats do not use machine learning. Non-learning algorithms can just provide better detection performance.
+There were three main problems I came across:
+1. **Training.** I had ridiculously little scam links, so training the algorithm becomes a problem. 
+In addtion to this, there are only maybe two or three legitimate links for Discord and Steam each. With such little data, it would be incredibly difficult to train a model that does not overfit.
+2. **Features.** A lot of the research papers I came across used upwards of 20 features. 
+This amplifies my training problem due to the curse of dimensionality. 
+But even worse, I didn't even have a lot of the features they used to work with. 
+For example, they used the length of the domain (i.e. to combat random character mash domains) or if the domain was an IP address. 
+Neither of those applied to me.
+3. **Performance.** Machine learning can be really accurate in their detection, if done right. 
+That being said, there is a reason why many video game anticheats do not use machine learning. 
+Non-learning algorithms can just provide better detection performance.
+In this case, I had a hunch that a learning algorithm would not provide low enough false positives.
 
 **Levenshtein distance**
 
