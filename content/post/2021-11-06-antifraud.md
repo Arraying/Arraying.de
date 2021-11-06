@@ -134,7 +134,7 @@ I just found the perfect method for typosquatting!
 
 I decided to write a suite dedicated to the algorithm, called [Andy](https://github.com/Arraying/Andy).
 Instead of Levenshtein distance, I opted to [normalize](https://stackoverflow.com/questions/45783385/normalizing-the-edit-distance) the Levenshtein distance.
-That way, I had a continous range `[0-1]` of how similar two strings are, from completely different to identical.
+That way, I had a continous range `[0-1]` of how similar two strings are, from completely different to identical respectively.
 
 The first problem was actually getting the domain from the link.
 Using `urllib` I could parse the domain (`netloc`). 
@@ -142,7 +142,7 @@ However, splitting that into the TLD and the actual domain someone could registe
 I ended up using the `tldextract` package for this.
 
 Next, I had to get something to compare each fraudulent domain to. 
-I opted for a configuration file where the you can define the legitimate domains (+ TLD), and then test link domains will be checked against these.
+I opted for a configuration file where you can define the legitimate domains (+ TLD), and then test link domains will be checked against these.
 If the link similarity is above a certain threshold, there is a high probability this is a scam.
 
 In addition to this, I also added keyword checking (is a certain keyword in the domain?), path checking (does the path contain some sort of keyword(s)?), and querystring checking (are there any suspicious querylinks?). 
@@ -151,7 +151,7 @@ With that, trend `#2` (refer to the data exploration section) was taken care of.
 I added some basic checks for trend `#1` and `#3` and the suite was good to go!
 
 If you are interested, [the source code can be found here](https://github.com/Arraying/Andy/blob/main/src/andy/suite.py).
-I encorage you to read it to see what is going on, it's a little bit too complex to describe here but it should hopefully be somewhat comprehensible.
+I encourage you to read it to see what is going on, it's a little bit too complex to describe here but it should hopefully be somewhat comprehensible.
 
 ## Phase 2: Implementing the algorithm in a bot
 
@@ -165,7 +165,7 @@ In all honesty, that was a bit of a nightmare.
 At the end of the day though, I found a functioning one on the internet and we were good to go!
 
 Once the bot checked if the link was fraudulent and it found it to be fraudulent, something had to be done.
-I basically made it log a message to a channel, and if enabled in the config, instant ban the person and delete their recent messages.
+I basically made it log a message to a channel, and if enabled in the config, instantly ban the person and delete their recent messages.
 Before the instant bad, I had the courtesy to message them that they were going to be banned. 
 So when or if the person gets their compromised account back, they'll know what happened.
 
@@ -288,7 +288,7 @@ However, there are also various other things that I have planned.
 While using ML to detect if a URL is fraudulent is something I determined not to be too effective for my case, there is still the option to train the thresholds in the config with ML.
 However, I can potentially build something with the values that Levenshtein spits out.
 If I have the normalized Levenshtein distance for the main domain, the (max value of) the path, querystring, etc. then I could possibly train a classifier.
-I doubt this will perform better than what I have working right now, but in the future if I need to compromise on false positive and false negatives ML starts to look like a much more viable solution.
+I doubt this will perform better than what I have working right now, but in the future if I need to compromise on false positive and false negatives, ML starts to look like a much more viable solution.
 
 ### Making the bot accessible
 
