@@ -22,7 +22,7 @@ If not, feel free to skip to wherever you want.
 **Table of contents:**
 - [The plague](#the-plague)
 - [Phase 1: Developing the algorithm](#phase-1-developing-the-algorithm)
-- [Phase 2: Implementing the algorithm in a bot](#phase-2)
+- [Phase 2: Implementing the algorithm in a bot](#phase-2-implementing-the-algorithm-in-a-bot)
 - [Results](#results)
 - [What's next](#whats-next)
 - [Installation](#installation)
@@ -151,3 +151,61 @@ I added some basic checks for trend `#1` and `#3` and the suite was good to go!
 
 If you are interested, [the source code can be found here](https://github.com/Arraying/Andy/blob/main/src/andy/suite.py).
 I encorage you to read it to see what is going on, it's a little bit too complex to describe here but it should hopefully be somewhat comprehensible.
+
+## Phase 2: Implementing the algorithm in a bot
+
+Now that I had the suite, I could implement it quite easily in a bot! 
+I decided the name [AndyInAction](https://github.com/Arraying/AndyInAction) was quite fitting.
+
+### Step 1: Writing a basic bot
+
+The most difficult part about implementing the algorithm was using a regular expression that detects URLs properly.
+In all honesty, that was a bit of a nightmare.
+At the end of the day though, I found a functioning one on the internet and we were good to go!
+
+Once the bot checked if the link was fraudulent and it found it to be fraudulent, something had to be done.
+I basically made it log a message to a channel, and if enabled in the config, instant ban the person and delete their recent messages.
+Before the instant bad, I had the courtesy to message them that they were going to be banned. 
+So when or if the person gets their compromised account back, they'll know what happened.
+
+And it worked so well!
+
+**What staff members see:**
+![Banned 1](https://i.imgur.com/s8iqowJ.png)
+
+**What the banned user sees:**
+![Banned 2](https://i.imgur.com/FXXWYoo.png)
+
+The message sent to the banned user is customisable.
+This is just the message that is used on the [r/ibo](https://discord.gg/ibo) server.
+
+### Step 2: Quality of life
+
+There were two minor issues with the bot.
+I invited the bot's first contributor, [`@ilikecubesnstuff`](https://github.com/ilikecubesnstuff) to help out!
+
+Firstly, staff members were not immune.
+This is probably ideal security wise, but in the long term staff being paranoid of being instant banned is probably not great.
+The solution to this is simple: add a list of role IDs to the config, and if a user sends a suspicious link and have one of these roles, no action is taken.
+
+Secondly, compromised accounts spam links using bots.
+In many cases, staff members would see the staff message repeated multiple times, as the ban took a while to go through.
+So, he added a small ban/notification cache to ensure that that does not happen.
+
+### Step 3: Redirects
+
+A few hours, maximum one day, after Discord implemented their hash denylist, the scammers decided to evade it.
+Fair enough honestly, if I was a scammer I'd probably do that too.
+Their technique: redirects!
+Scam links were now behind `bit.ly` links. 
+This posed a problem for the bot: it did not resolve whatever is behind the redirect.
+
+Luckily, a HTTP `HEAD` request exists.
+It's essentially the same as a `GET` request, only that just returns the header and no response body.
+So, the solution was for every link encountered, do a `HEAD` and check if it redirects. 
+If it does, make sure to check the link it redirects to as well.
+
+If only it were that simple. 
+Some domains could not be resolved by DNS. 
+This made my GET request incredibly slow as I had to wait for timeouts, and setting the request timeout did nothing.
+So in the end, I had to first see if I can resolve the domain (with a short timeout!), and only then check for redirects.
