@@ -1,16 +1,57 @@
 ---
-title: About me
-subtitle: Why you'd want to go on a date with me
+title: Hello there...
+subtitle: (...General Kenobi!) Let me tell you something about myself
+date: 2002-03-28
 comments: false
 ---
 
-My name is Inigo Montoya. I have the following qualities:
+### The basics
 
-- I rock a great mustache
-- I'm extremely loyal to my family
+I've never been able to properly describe myself so I will just quote my GitHub about me:
 
-What else do you need?
+> Diving into big data, programming languages and improving productivity and workflow. Formerly part-time full-stack Minecraft Server/Network developer.
 
-### my history
+Sometimes I feel like a functional programming language.
+I really vibe with lazy evaluation.
+My pet peeve is wasting time/effort/productivity.
 
-To be honest, I'm having some trouble remembering right now, so why don't you just watch [my movie](http://en.wikipedia.org/wiki/The_Princess_Bride_%28film%29) and it will answer **all** your questions.
+### My goal
+
+The goal of this blog is to explore issues that are facing me as a person and software developer.
+Ultimately, I want to talk about my experiences in developing tools for the greater good of consumers and developers.
+However, this blog will probably also feature qutie a lot of interesting problems I encountered and how I solved them.
+
+
+### Languages
+
+Over the years, I've picked up quite a lot of programming languages.
+Here's a somewhat comprehensive list of the languages and technologies I've played around with.
+By no means am I fluent/proficient in all of these (at the same time).
+However, I have solved problems in them.
+Should I need to, I will have no problem picking them up again.
+
+- 🤓 **x86_64** Assembly [GAS Syntax]
+- 🏎️ **ANSI-C/C++**
+- ⚙️ **Rust**
+- 🐹 **Go**
+- ☕ **Java**
+   - 🌱 Spring
+   - ⛏️ BungeeCord, Spigot & Co.
+- 🎩 **Scala/Kotlin**
+- 😢 **JavaScript**
+  - 🪓 Node.js/ES6
+  - 📈 AJAX/jQuery
+  - 🦏 Nashorn
+- 🐍 **Python**
+  - ✍️ Jupyter Notebook
+  - 🔢 NumPy
+- 💾 **Databases/Caches**
+  - 🐘 PostgreSQL
+  - 🐬 MariaDB
+  - 👁️ Cassandra
+  - 🗄️ Redis
+- 📰 **LaTeX**
+  - 📚 BibLaTeX
+- 🖍️ **Markup**
+  - 🌐 HTML/CSS/ejs/Pug
+  - 🎈 JSON/XML
