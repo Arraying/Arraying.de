@@ -40,11 +40,11 @@
 
           &nbsp;&bull;&nbsp;&copy;
           {{ if .Site.Params.since }}
-            {{ .Site.Params.since }} - {{ .Site.LastChange.Format "2006" }}
+            {{ .Site.Params.lastChange }} - {{ .Site.Params.since }}
           {{ else }}
-            {{ .Site.LastChange.Format "2006" }}
+            {{ .Site.Params.lastChange }}
           {{ end }}
-          
+
         </p>
         <!-- Please don't remove this, keep my open source work credited :) -->
         <p class="credits theme-by text-muted">

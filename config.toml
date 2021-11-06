@@ -28,6 +28,7 @@ pygmentsCodefencesGuessSyntax = true
   delayDisqus = true
   showRelatedPosts = true
   hideAuthor = true
+  lastChange = 2021
 
 #[[Params.bigimg]]
 #  src = "img/triangle.jpg"
