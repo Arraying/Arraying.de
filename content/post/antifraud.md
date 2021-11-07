@@ -123,7 +123,7 @@ In this case, I had a hunch that a learning algorithm would not provide low enou
 
 **Levenshtein distance**
 
-Just was I was giving up, I came across [Levenshtein distances](https://en.wikipedia.org/wiki/Levenshtein_distance). 
+Just as I was giving up, I came across [Levenshtein distances](https://en.wikipedia.org/wiki/Levenshtein_distance). 
 Simply put, it can measure the similarities of two strings.
 Spellcheckers use Levenshtein distance to compute their predictions.
 If we have a domain, `discord.com` and a scam domain `d1scord.com`, we could see how similar they are.
