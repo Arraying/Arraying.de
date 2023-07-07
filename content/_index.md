@@ -1,7 +1,9 @@
-## Welcome to my website! 👋
+## Welcome to my blog! 👋
 
-I'm currently pursuing a Bachelor of Science in **Computer Science & Engineering**  
-👉 I'm specializing in **data** (big data, data mining, ML, etc.)  
-👉 Software engineering is cool, but currently I'm very interested in programming languages and functional programming
+I will be purusing a Master of Science in **Software Engineering of Distributed Systems**.
+👉 My interests currently resolve around programming and programming languages, DevOps and distributed systems.
+👉 I wrote my Bachelor's thesis on type-checking using scope graphs.
+👉 In the past years I've covered a lot of breadth of topics, feel free to have a look around in my 
+[repositories](https://github.com/Arraying?tab=repositories) :)
 
-📌 *Delft, The Netherlands*
+📌 *Berlin, Germany*

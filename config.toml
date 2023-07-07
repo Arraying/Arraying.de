@@ -1,6 +1,6 @@
 baseurl = "/"
 DefaultContentLanguage = "en"
-title = "Arraying"
+title = "Paul Hübner"
 theme = "beautifulhugo"
 metaDataFormat = "yaml"
 pygmentsStyle = "trac"
@@ -28,7 +28,7 @@ pygmentsCodefencesGuessSyntax = true
   delayDisqus = true
   showRelatedPosts = true
   hideAuthor = true
-  lastChange = 2021
+  lastChange = 2023
 
 #[[Params.bigimg]]
 #  src = "img/triangle.jpg"
@@ -43,12 +43,13 @@ pygmentsCodefencesGuessSyntax = true
 #  desc = "Hexagon"
 
 [Author]
-  name = "Arraying"
+  name = "Paul Hübner"
   website = "https://arraying.de"
   email = "arraying1337@gmail.com"
   github = "Arraying"
   gitlab = "Arraying"
   twitter = "arraying1337"
+  linkedin = "ph02"
 
 [[menu.main]]
     name = "Blog"
