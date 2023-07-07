@@ -208,7 +208,7 @@ Initially, I had a custom CLI.
 I moved over to [`prompts`](https://www.npmjs.com/package/prompts), because it had a batteries-included version of everything I needed, and looked good in 
 the process.
 
-![The CLI](https://github.com/Arraying/Candor/blob/4ebf2b4b507d38c0d4790b34733d2a5ac53773fd/assets/showcase_cli.png)
+![The CLI](https://raw.githubusercontent.com/Arraying/Candor/4ebf2b4b507d38c0d4790b34733d2a5ac53773fd/assets/showcase_cli.png)
 
 ## The frontend
 
@@ -221,9 +221,9 @@ I actually decided *against* TypeScript for my frontend logic (not that there is
 Using TypeScript introduces a certain amount of overhead, and I was perfectly content with using JavaScript for the little frontend logic that I had.
 I may reconsider if I extend the frontend, but in retrospect, I do not regret this choice.
 
-![Candor home page](https://github.com/Arraying/Candor/blob/4ebf2b4b507d38c0d4790b34733d2a5ac53773fd/assets/showcase_home.png)
+![Candor home page](https://raw.githubusercontent.com/Arraying/Candor/4ebf2b4b507d38c0d4790b34733d2a5ac53773fd/assets/showcase_home.png)
 
-![Candor pipeline info](https://github.com/Arraying/Candor/blob/4ebf2b4b507d38c0d4790b34733d2a5ac53773fd/assets/showcase_pipeline.png)
+![Candor pipeline info](https://raw.githubusercontent.com/Arraying/Candor/4ebf2b4b507d38c0d4790b34733d2a5ac53773fd/assets/showcase_pipeline.png)
 
 ## Networking
 
@@ -339,7 +339,7 @@ I can highly recommend [this blog post](https://www.emgoto.com/mocking-with-jest
 
 This is the final architecture, excluding the database:
 
-![Architecture](https://github.com/Arraying/Candor/blob/4ebf2b4b507d38c0d4790b34733d2a5ac53773fd/assets/flowchart.png)
+![Architecture](https://raw.githubusercontent.com/Arraying/Candor/4ebf2b4b507d38c0d4790b34733d2a5ac53773fd/assets/flowchart.png)
 
 That's a lot of components.
 How do you effectively bundle these to make Candor easy to install?
