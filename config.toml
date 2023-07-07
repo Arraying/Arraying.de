@@ -13,7 +13,7 @@ pygmentsCodefencesGuessSyntax = true
 #googleAnalytics = "XXX"
 
 [Params]
-  subtitle = "Building a little bit of everything and a whole lot of nothing"
+  subtitle = "Building a little bit of everything and a whole lot of nothing."
   mainSections = ["post","posts"]
   logo = "img/avatar-icon.png" # Expecting square dimensions
   favicon = "img/favicon.ico"
