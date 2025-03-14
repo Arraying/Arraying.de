@@ -22,7 +22,7 @@ pagination.pagerSize = 5
     title = "Paul Hübner"
 
     [languages.en.params]
-      subtitle = "A simple, retro theme for Hugo"
+      subtitle = "My personal blog"
       owner = "Paul Hübner"
       keywords = "computer science, programming, technology"
       copyright = "Paul Hübner"
