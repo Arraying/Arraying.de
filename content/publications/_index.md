@@ -1,3 +1,7 @@
+---
+title: "Publications"
+---
+
 # Papers:
 
 * P. Hübner, A. Hu, I. Peng, and S. Markidis, “Apple vs. Oranges: Evaluating the Apple Silicon M-Series SoCs for HPC Performance and Efficiency,” 2025, arXiv Preprint. doi: 10.48550/ARXIV.2502.05317.

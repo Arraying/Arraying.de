@@ -1,3 +1,7 @@
+---
+title: "About"
+---
+
 # Hello there.
 
 I'm currently interested in compilers and high performance computing.
