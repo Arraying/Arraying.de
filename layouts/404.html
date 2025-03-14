@@ -1,0 +1,14 @@
+{{ define "main" }}
+  <div class="post">
+    <h1 class="post-title">404 — {{ $.Site.Params.missingContentMessage | default "Page not found ..." }}</h1>
+
+    <div class="post-content">
+      <a href="{{ "/" | absURL }}">{{ $.Site.Params.missingBackButtonLabel | default "Back to home page" }}&nbsp;→</a>
+    </div>
+
+    <p>
+      Alternatively, to see two cats fight with lighstabers, <a href="https://tenor.com/en-GB/view/cat-cats-funny-light-sabers-light-saber-gif-5483839" target="_blank">click here</a>.
+    </p>
+
+  </div>
+{{ end }}

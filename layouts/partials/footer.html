@@ -1,0 +1,21 @@
+<footer class="footer">
+    <div class="footer__inner">
+        <div class="copyright copyright--user">
+            <div>© 2025 Paul Hübner. All opinons are my own, and may not reflect Oracle's.</div>
+            <div>
+                Themed using <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Terminal.css</a> by <a href="https://github.com/panr" target="_blank">panr</a>.
+            </div>
+        </div>
+    </div>
+</footer>
+
+{{ $menu := resources.Get "js/menu.js" | js.Build }}
+{{ $cp := resources.Get "js/code.js" | js.Build }}
+
+{{ $bundle := slice $menu $cp | resources.Concat "bundle.js" | resources.Minify }}
+
+<script type="text/javascript" src="{{ $bundle.RelPermalink }}"></script>
+
+<!-- Extended footer section-->
+{{ partial "extended_footer.html" . }}
+
