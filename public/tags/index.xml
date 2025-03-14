@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tags on Paul Hübner</title>
+    <link>/tags/</link>
+    <description>Recent content in Tags on Paul Hübner</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>© 2025 Paul Hübner</copyright>
+    <lastBuildDate>Fri, 14 Mar 2025 21:33:12 +0100</lastBuildDate><atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>fp</title>
+      <link>/tags/fp/</link>
+      <pubDate>Fri, 14 Mar 2025 21:33:12 +0100</pubDate>
+      
+      <guid>/tags/fp/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>haskell</title>
+      <link>/tags/haskell/</link>
+      <pubDate>Fri, 14 Mar 2025 21:33:12 +0100</pubDate>
+      
+      <guid>/tags/haskell/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>candor</title>
+      <link>/tags/candor/</link>
+      <pubDate>Fri, 07 Jul 2023 17:11:47 +0200</pubDate>
+      
+      <guid>/tags/candor/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>ci</title>
+      <link>/tags/ci/</link>
+      <pubDate>Fri, 07 Jul 2023 17:11:47 +0200</pubDate>
+      
+      <guid>/tags/ci/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>docker</title>
+      <link>/tags/docker/</link>
+      <pubDate>Fri, 07 Jul 2023 17:11:47 +0200</pubDate>
+      
+      <guid>/tags/docker/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>svelte</title>
+      <link>/tags/svelte/</link>
+      <pubDate>Fri, 07 Jul 2023 17:11:47 +0200</pubDate>
+      
+      <guid>/tags/svelte/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>typescript</title>
+      <link>/tags/typescript/</link>
+      <pubDate>Fri, 07 Jul 2023 17:11:47 +0200</pubDate>
+      
+      <guid>/tags/typescript/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>andy</title>
+      <link>/tags/andy/</link>
+      <pubDate>Sat, 06 Nov 2021 18:30:54 +0100</pubDate>
+      
+      <guid>/tags/andy/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>python</title>
+      <link>/tags/python/</link>
+      <pubDate>Sat, 06 Nov 2021 18:30:54 +0100</pubDate>
+      
+      <guid>/tags/python/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

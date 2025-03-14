@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>andy on Paul Hübner</title>
+    <link>/tags/andy/</link>
+    <description>Recent content in andy on Paul Hübner</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>© 2025 Paul Hübner</copyright>
+    <lastBuildDate>Sat, 06 Nov 2021 18:30:54 +0100</lastBuildDate><atom:link href="/tags/andy/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Building the Best Anti-Fraud Bot You&#39;ve Never Heard Of</title>
+      <link>/post/antifraud/</link>
+      <pubDate>Sat, 06 Nov 2021 18:30:54 +0100</pubDate>
+      
+      <guid>/post/antifraud/</guid>
+      <description>&lt;p&gt;I made a Discord bot that will automatically detect fraudulent Steam/Nitro links on Discord, and ban the person sending these.
+The impressive part: it works on never-before seen links, and its false-positive and false-negative rate is &lt;em&gt;ridiculously&lt;/em&gt; low.
+It&amp;rsquo;s totally open source and you can protect your server too!
+Check out the &lt;a href=&#34;#installation&#34;&gt;Installation&lt;/a&gt; section if you are interested.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>typescript on Paul Hübner</title>
+    <link>/tags/typescript/</link>
+    <description>Recent content in typescript on Paul Hübner</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>© 2025 Paul Hübner</copyright>
+    <lastBuildDate>Fri, 07 Jul 2023 17:11:47 +0200</lastBuildDate><atom:link href="/tags/typescript/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Candor: A Simple and Powerful CI Ecosystem</title>
+      <link>/post/candor/</link>
+      <pubDate>Fri, 07 Jul 2023 17:11:47 +0200</pubDate>
+      
+      <guid>/post/candor/</guid>
+      <description>&lt;p&gt;Candor is a CI ecosystem - a dashboard with runners - that not only caters to my needs but is also a manifestation of what happens when I let my passion
+and perfectionism get the better of me.
+Behind it is a multi-year process, months of active development, fuelled by caffeine and sheer commitment.
+If you would like to check it out, &lt;a href=&#34;https://github.com/Arraying/Candor&#34;&gt;you can view the project on GitHub&lt;/a&gt;.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>
