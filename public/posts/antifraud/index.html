@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Building the Best Anti-Fraud Bot You&#39;ve Never Heard Of :: Paul Hübner</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="I made a Discord bot that will automatically detect fraudulent Steam/Nitro links on Discord, and ban the person sending these. The impressive part: it works on never-before seen links, and its false-positive and false-negative rate is ridiculously low. It&amp;rsquo;s totally open source and you can protect your server too! Check out the Installation section if you are interested.
+" />
+<meta name="keywords" content="computer science, programming, technology" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="/posts/antifraud/" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css">
+
+  
+  <link rel="stylesheet" href="/css/code.min.4f0ccc8439f99bf7f7970298556b94011aabc1fcae743b6842fc3361a2da9ea3.css">
+
+  
+  <link rel="stylesheet" href="/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css">
+
+  
+  <link rel="stylesheet" href="/css/footer.min.eb8dfc2c6a7eafa36cd3ba92d63e69e849e2200e0002a228d137f236b09ecd75.css">
+
+  
+  <link rel="stylesheet" href="/css/gist.min.a751e8b0abe1ba8bc53ced52a38b19d8950fe78ca29454ea8c2595cf26aad5c0.css">
+
+  
+  <link rel="stylesheet" href="/css/header.min.75c7eb0e2872d95ff48109c6647d0223a38db52e2561dd87966eb5fc7c6bdac6.css">
+
+  
+  <link rel="stylesheet" href="/css/main.min.15870410d15d02abd22fb5ef00996f65a00d04b3a7435e9f83831c7c2298de88.css">
+
+  
+  <link rel="stylesheet" href="/css/menu.min.3c17467ebeb3d38663dce68f71f519901124fa5cbb4519b2fb0667a21e9aca39.css">
+
+  
+  <link rel="stylesheet" href="/css/pagination.min.bbb986dbce00a5ce5aca0504b7925fc1c581992a4bf57f163e5d69cc1db7d836.css">
+
+  
+  <link rel="stylesheet" href="/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css">
+
+  
+  <link rel="stylesheet" href="/css/syntax.min.a0773cce9310cb6d8ed23e50f005448facf29a53001b57e038828daa466b25c0.css">
+
+  
+  <link rel="stylesheet" href="/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css">
+
+  
+  <link rel="stylesheet" href="/css/terms.min.b81791663c3790e738e571cdbf802312390d30e4b1d8dc9d814a5b5454d0ac11.css">
+
+
+<link rel="stylesheet" href="/terminal.css">
+
+
+
+
+<link rel="shortcut icon" href="/favicon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Building the Best Anti-Fraud Bot You&#39;ve Never Heard Of">
+<meta property="og:description" content="I made a Discord bot that will automatically detect fraudulent Steam/Nitro links on Discord, and ban the person sending these. The impressive part: it works on never-before seen links, and its false-positive and false-negative rate is ridiculously low. It&amp;rsquo;s totally open source and you can protect your server too! Check out the Installation section if you are interested.
+" />
+<meta property="og:url" content="/posts/antifraud/" />
+<meta property="og:site_name" content="Paul Hübner" />
+
+  <meta property="og:image" content="/og-image.png">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2021-11-06 18:30:54 &#43;0100 CET" />
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+
+<div class="container center">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    Paul Hübner
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/">Home</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+        
+          <li><a href="/posts">Blog</a></li>
+        
+      
+        
+          <li><a href="/publications">Publications</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/" >Home</a></li>
+        
+      
+        
+          <li><a href="/about" >About</a></li>
+        
+      
+        
+          <li><a href="/posts" >Blog</a></li>
+        
+      
+        
+          <li><a href="/publications" >Publications</a></li>
+        
+      
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="/posts/antifraud/">Building the Best Anti-Fraud Bot You&rsquo;ve Never Heard Of</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2021-11-06</time><span class="post-author">Paul Hübner</span><span class="post-reading-time">12 min read (2389 words)</span></div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="/tags/python/">python</a>&nbsp;
+      
+      #<a href="/tags/andy/">andy</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+  
+
+  <div class="post-content"><div>
+        <p>I made a Discord bot that will automatically detect fraudulent Steam/Nitro links on Discord, and ban the person sending these.
+The impressive part: it works on never-before seen links, and its false-positive and false-negative rate is <em>ridiculously</em> low.
+It&rsquo;s totally open source and you can protect your server too!
+Check out the <a href="#installation">Installation</a> section if you are interested.</p>
+<hr>
+<p>This post is quite technical.
+If you&rsquo;re interested in how I developed this idea, then you are in for a treat.
+If not, feel free to skip to wherever you want.</p>
+<p><strong>Table of contents:</strong></p>
+<ul>
+<li><a href="#the-plague">The plague</a></li>
+<li><a href="#phase-1-developing-the-algorithm">Phase 1: Developing the algorithm</a></li>
+<li><a href="#phase-2-implementing-the-algorithm-in-a-bot">Phase 2: Implementing the algorithm in a bot</a></li>
+<li><a href="#results">Results</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#whats-next">What&rsquo;s next</a></li>
+<li><a href="#final-remarks">Final remarks</a></li>
+</ul>
+<p><em><strong>Note:</strong> This blog post contains domains associated to fraud.
+DO NOT VISIT LINKS IN CODE BLOCKS.
+THEY ARE FRAUDULENT LINKS.
+All sites that are safe in this post are <strong>hyperlinked</strong>.</em></p>
+<hr>
+<h2 id="the-plague">The plague<a href="#the-plague" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>For a few months now, Discord has been plagued by botnets of stolen accounts that try to scam users.
+You&rsquo;ve probably seen them around. They look something like this:</p>
+<p><img src="https://i.imgur.com/g7ZYCES.png" alt="Scams"></p>
+<p>If you look closely, you&rsquo;ll realise that the links (which I blurred) lead to non-Steam/Discord websites.</p>
+<p>The principle behind these scams is simple: compromised accounts spam servers and DMs with links to a fake Nitro redemption site.
+Victims then enter their username and password, and become compromised themselves.</p>
+<p>The problem got really bad the last few weeks.
+I started getting pinged too often because of some sort of scam going on.
+Annoyed at the mild inconvenience of a <code>@Staff</code> ping, I decided:
+<strong>Enough of that! Let&rsquo;s combat Discord &amp; Steam fraud at never-before seen effectivity.</strong></p>
+<h2 id="phase-1-developing-the-algorithm">Phase 1: Developing the algorithm<a href="#phase-1-developing-the-algorithm" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<h3 id="step-1-what-kind-of-links-are-we-actually-dealing-with">Step 1: What kind of links are we actually dealing with?<a href="#step-1-what-kind-of-links-are-we-actually-dealing-with" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>First things first!
+You can&rsquo;t build an effective anti-fraud algorithm without knowing what kind of data you&rsquo;re dealing with.
+Thankfully, one of my fellow staff members was kind enough to provide me with a list of domains.</p>
+<p>An exerpt can be seen below:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">https://dlsc​ord.or​g/information-nitro
+</span></span><span class="line"><span class="cl">ht​tps://discordap​p.click/free/nitro
+</span></span><span class="line"><span class="cl">htt​ps://steamcommu​nity-nitro.ru/general
+</span></span></code></pre></div><p>As you can see, these links generally follow one of the following trends:</p>
+<ol>
+<li>A legitimate domain with a non-official TLD.</li>
+<li>A slightly misspelled domain similar to the official domain.</li>
+<li>An official looking domain and TLD domain, however some additional keywords are added using hyphens.</li>
+</ol>
+<p>The specific type of fraud with misspelled URLs is called <strong>typosquatting</strong>.
+I will be referring to this quite a lot.
+We need our algorithm to be able to deal with all 3 of these scenarios.</p>
+<h3 id="step-2-exploring-our-options">Step 2: Exploring our options<a href="#step-2-exploring-our-options" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>Now that we know what we are working with, we need to explore the different ways we can combat these links.</p>
+<p><strong>Denylisting</strong></p>
+<p>The first &ldquo;solution&rdquo; that came to mind is to keep a denylist of all domains that are known to be fraudulent.
+This solution is, to put it bluntly, primitive.
+It&rsquo;s a cat and mouse game between scammers and those keeping the denylist up to date.
+New links will never be known until an incident occurs.
+As such, I regarded this as a worst-case scenario.</p>
+<p>Discord actually <a href="https://cdn.discordapp.com/attachments/159020907539464193/905601839146340382/Malicious_Link_Blocker.png">implemented</a> a basic denylist using hashes of malicious domains.
+Honestly, I&rsquo;m not sure what I think of it.
+It&rsquo;s something, but at the same time, scammers can and easily will get around it.</p>
+<p><strong>Regular expressions</strong></p>
+<p>Naturally, the next step is some form of regular expressions.
+We already had a chat-filter bot that supported regular expressions, which we extended with regular expressions for Steam scams.
+RegEx does support unknown links, which was definitely a good start.
+The problem is that you need to provide some sort of format, and abstracting such a format to be flexible enough to catch the large variety of links is challenging.
+For instance, <a href="https://mathiasbynens.be/demo/url-regex">this is what a URL RegExes looks like</a>, which are all not perfect.
+RegEx was quite effective at first, however once the Nitro scams started rolling in, our filter essentially became useless.
+We just had a huge variety/scalability problem, so I needed to look into something else.</p>
+<p><strong>Machine learning</strong></p>
+<p>Here&rsquo;s a buzzword for you: machine learning.
+I read a few papers on using machine learning to detect fraudulent URLs.
+However, while ML is definitely incredibly powerful, it still wasn&rsquo;t enough for this.</p>
+<p>There were three main problems I came across:</p>
+<ol>
+<li><strong>Training.</strong> I had ridiculously little scam links, so training the algorithm becomes a problem.
+In addtion to this, there are only maybe two or three legitimate links for Discord and Steam each. With such little data, it would be incredibly difficult to train a model that does not overfit.</li>
+<li><strong>Features.</strong> A lot of the research papers I came across used upwards of 20 features.
+This amplifies my training problem due to the curse of dimensionality.
+But even worse, I didn&rsquo;t even have a lot of the features they used to work with.
+For example, they used the length of the domain (i.e. to combat random character mash domains) or if the domain was an IP address.
+Neither of those applied to me.</li>
+<li><strong>Performance.</strong> Machine learning can be really accurate in their detection, if done right.
+That being said, there is a reason why many video game anticheats do not use machine learning.
+Non-learning algorithms can just provide better detection performance.
+In this case, I had a hunch that a learning algorithm would not provide low enough false positives.</li>
+</ol>
+<p><strong>Levenshtein distance</strong></p>
+<p>Just as I was giving up, I came across <a href="https://en.wikipedia.org/wiki/Levenshtein_distance">Levenshtein distances</a>.
+Simply put, it can measure the similarities of two strings.
+Spellcheckers use Levenshtein distance to compute their predictions.
+If we have a domain, <code>discord.com</code> and a scam domain <code>d1scord.com</code>, we could see how similar they are.
+Given that they are &ldquo;similar enough&rdquo;, this could be an indication that the link is fraudulent.
+I just found the perfect method for typosquatting!</p>
+<h3 id="step-3-writing-the-algorithm">Step 3: Writing the algorithm<a href="#step-3-writing-the-algorithm" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>I decided to write a suite dedicated to the algorithm, called <a href="https://github.com/Arraying/Andy">Andy</a>.
+Instead of Levenshtein distance, I opted to <a href="https://stackoverflow.com/questions/45783385/normalizing-the-edit-distance">normalize</a> the Levenshtein distance.
+That way, I had a continous range <code>[0-1]</code> of how similar two strings are, from completely different to identical respectively.</p>
+<p>The first problem was actually getting the domain from the link.
+Using <code>urllib</code> I could parse the domain (<code>netloc</code>).
+However, splitting that into the TLD and the actual domain someone could register was quite challenging.
+I ended up using the <code>tldextract</code> package for this.</p>
+<p>Next, I had to get something to compare each fraudulent domain to.
+I opted for a configuration file where you can define the legitimate domains (+ TLD), and then test link domains will be checked against these.
+If the link similarity is above a certain threshold, there is a high probability this is a scam.</p>
+<p>In addition to this, I also added keyword checking (is a certain keyword in the domain?), path checking (does the path contain some sort of keyword(s)?), and querystring checking (are there any suspicious querylinks?).</p>
+<p>With that, trend <code>#2</code> (refer to the data exploration section) was taken care of.
+I added some basic checks for trend <code>#1</code> and <code>#3</code> and the suite was good to go!</p>
+<p>If you are interested, <a href="https://github.com/Arraying/Andy/blob/main/src/andy/suite.py">the source code can be found here</a>.
+I encourage you to read it to see what is going on, it&rsquo;s a little bit too complex to describe here but it should hopefully be somewhat comprehensible.</p>
+<h2 id="phase-2-implementing-the-algorithm-in-a-bot">Phase 2: Implementing the algorithm in a bot<a href="#phase-2-implementing-the-algorithm-in-a-bot" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Now that I had the suite, I could implement it quite easily in a bot!
+I decided the name <a href="https://github.com/Arraying/AndyInAction">AndyInAction</a> was quite fitting.</p>
+<h3 id="step-1-writing-a-basic-bot">Step 1: Writing a basic bot<a href="#step-1-writing-a-basic-bot" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>The most difficult part about implementing the algorithm was using a regular expression that detects URLs properly.
+In all honesty, that was a bit of a nightmare.
+At the end of the day though, I found a functioning one on the internet and we were good to go!</p>
+<p>Once the bot checked if the link was fraudulent and it found it to be fraudulent, something had to be done.
+I basically made it log a message to a channel, and if enabled in the config, instantly ban the person and delete their recent messages.
+Before the instant ban, I had the courtesy to message them that they were going to be banned.
+So when or if the person gets their compromised account back, they&rsquo;ll know what happened.</p>
+<p>And it worked so well!</p>
+<p><strong>What staff members see:</strong>
+<img src="https://i.imgur.com/s8iqowJ.png" alt="Banned 1"></p>
+<p><strong>What the banned user sees:</strong>
+<img src="https://i.imgur.com/FXXWYoo.png" alt="Banned 2"></p>
+<p>The message sent to the banned user is customisable.
+This is just the message that is used on the <a href="https://discord.gg/ibo">r/ibo</a> server.</p>
+<h3 id="step-2-quality-of-life">Step 2: Quality of life<a href="#step-2-quality-of-life" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>There were two minor issues with the bot.
+I invited the bot&rsquo;s first contributor, <a href="https://github.com/ilikecubesnstuff"><code>@ilikecubesnstuff</code></a> to help out!</p>
+<p>Firstly, staff members were not immune.
+This is probably ideal security wise, but in the long term staff being paranoid of being instant banned is probably not great.
+The solution to this is simple: add a list of role IDs to the config, and if a user sends a suspicious link and have one of these roles, no action is taken.</p>
+<p>Secondly, compromised accounts spam links using bots.
+In many cases, staff members would see the staff message repeated multiple times, as the ban took a while to go through.
+So, he added a small ban/notification cache to ensure that that does not happen.</p>
+<h3 id="step-3-redirects">Step 3: Redirects<a href="#step-3-redirects" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>A few hours, maximum one day, after Discord implemented their hash denylist, the scammers decided to evade it.
+Fair enough honestly, if I was a scammer I&rsquo;d probably do that too.
+Their technique: redirects!
+Scam links were now behind <code>bit.ly</code> links.
+This posed a problem for the bot: it did not resolve whatever is behind the redirect.</p>
+<p>Luckily, a HTTP <code>HEAD</code> request exists.
+It&rsquo;s essentially the same as a <code>GET</code> request, only that just returns the header and no response body.
+So, the solution was for every link encountered, do a <code>HEAD</code> and check if it redirects.
+If it does, make sure to check the link it redirects to as well.</p>
+<p>If only it were that simple.
+Some domains could not be resolved by DNS.
+This made my GET request incredibly slow as I had to wait for timeouts, and setting the request timeout did nothing.
+So in the end, I had to first see if I can resolve the domain (with a short timeout!), and only then check for redirects.</p>
+<h2 id="results">Results<a href="#results" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<h3 id="benchmarks">Benchmarks<a href="#benchmarks" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>There were no cases of false negatives and some false positives during my beta testing (i.e. figuring out a good config with thresholds).
+The final configuration I created produced <strong>no false positives or false negatives</strong>.
+This was using ~25 scam links that we collected (some of the domains are not unique, but the links are), and <a href="https://pastebin.com/ikzL20sR">a bunch of random + selected challenging links</a>.</p>
+<h3 id="performance-in-production">Performance in production<a href="#performance-in-production" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>I introduced <em>AndyInAction</em> with banning enabled to the world on the 16th of October.
+Since then (until the date of publishing):</p>
+<ul>
+<li><strong>1943</strong> links were sent in the server.</li>
+<li><strong>18</strong> unique people were automatically picked up and banned.</li>
+<li><strong>0</strong> false bans have occurred.</li>
+<li><strong>A single link</strong> was not detected.
+We had to lower a threshold by <code>3%</code> and then it got picked up.</li>
+</ul>
+<p>That&rsquo;s absolutely <em>bonkers</em>!</p>
+<p>No, seriously, that&rsquo;s ridiculous.
+Our <code>@Staff</code> pings regarding scam links reduced to 0, excluding that link (+ the redirects before that checker was implemented).
+The robots have taken over our job!
+Perhaps we will finally have a way to combat these scammers, since both the technical measures and awareness that Discord are pushing clearly is not enough to counter the problem.</p>
+<h2 id="installation">Installation<a href="#installation" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>In order to use <a href="https://github.com/Arraying/AndyInAction"><em>AndyInAction</em></a> on your server, you have to:</p>
+<ol>
+<li><a href="https://discordpy.readthedocs.io/en/stable/discord.html">Make a bot account and add it to your server</a>.</li>
+<li>Clone the repository.</li>
+<li>Create the <code>bot.json</code> config and fill it out.</li>
+<li>Create the <code>config.json</code> config and fill it out.</li>
+<li>Install the requirements for it to run.</li>
+<li>Run the bot.</li>
+</ol>
+<p>The installation instructions and bot config template is found <a href="https://github.com/Arraying/AndyInAction#installation-configuration--usage">here</a>.
+I do however have one gift for you.
+Filling out the <code>config.json</code> and configuring it is quite tedious.
+Below is the configuration that I personally use on my servers.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;domain&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;discord&#34;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;co&#34;</span> <span class="p">,</span><span class="s2">&#34;com&#34;</span><span class="p">,</span> <span class="s2">&#34;design&#34;</span><span class="p">,</span> <span class="s2">&#34;dev&#34;</span><span class="p">,</span> <span class="s2">&#34;gg&#34;</span><span class="p">,</span> <span class="s2">&#34;gift&#34;</span><span class="p">,</span> <span class="s2">&#34;media&#34;</span><span class="p">,</span> <span class="s2">&#34;new&#34;</span><span class="p">,</span> <span class="s2">&#34;store&#34;</span><span class="p">,</span> <span class="s2">&#34;tools&#34;</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;discordapp&#34;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;com&#34;</span><span class="p">,</span> <span class="s2">&#34;io&#34;</span><span class="p">,</span> <span class="s2">&#34;net&#34;</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;discordmerch&#34;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;com&#34;</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;discordpartygames&#34;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;com&#34;</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;discord-activities&#34;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;com&#34;</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;discordactivities&#34;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;com&#34;</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;discordcdn&#34;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;com&#34;</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;discordsays&#34;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;com&#34;</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;discordstatus&#34;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;com&#34;</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;steamcommunity&#34;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;com&#34;</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;steampowered&#34;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;com&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;domain_threshold&#34;</span><span class="p">:</span> <span class="mf">0.77</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;domain_keywords&#34;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;nitro&#34;</span><span class="p">,</span> <span class="s2">&#34;gift&#34;</span><span class="p">,</span> <span class="s2">&#34;airdrop&#34;</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;domain_keywords_threshold&#34;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;path&#34;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;nitro&#34;</span><span class="p">,</span> <span class="s2">&#34;gift&#34;</span><span class="p">,</span> <span class="s2">&#34;airdrop&#34;</span><span class="p">,</span> <span class="s2">&#34;trade&#34;</span><span class="p">,</span> <span class="s2">&#34;tradeoffer&#34;</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;path_threshold&#34;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;path_split&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;query&#34;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;gift&#34;</span><span class="p">,</span> <span class="s2">&#34;partner&#34;</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;query_threshold&#34;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;query_split&#34;</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h2 id="whats-next">What&rsquo;s next<a href="#whats-next" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Now that I have a basic bot, the main thing I can do is to sit back and monitor for any changes in the scene and false positive/negatives.
+However, there are also various other things that I have planned.</p>
+<h3 id="machine-learning-revisited">Machine learning revisited<a href="#machine-learning-revisited" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>While using ML to detect if a URL is fraudulent is something I determined not to be too effective for my case, there is still the option to train the thresholds in the config with ML.
+However, I can potentially build something with the values that Levenshtein spits out.
+If I have the normalized Levenshtein distance for the main domain, the (max value of) the path, querystring, etc. then I could possibly train a classifier.
+I doubt this will perform better than what I have working right now, but in the future if I need to compromise on false positive and false negatives, ML starts to look like a much more viable solution.</p>
+<h3 id="making-the-bot-accessible">Making the bot accessible<a href="#making-the-bot-accessible" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>Currently, installing the bot requires at least some sort of technical know-how.
+I want to look into making it easier for server owners with little programming knowledge to install and configure the bot, through a more comprehensive guide, YouTube tutorials, etc.</p>
+<p>What would be even nicer is some form of public bot that users can invite.
+Currently I lack the time to do this, unless this is definitely something that will work and will have widespread usage.
+Honestly though, maintaining public bots is kind of tedious.
+If nobody is interested in this option, then there is no point.</p>
+<h2 id="final-remarks">Final remarks<a href="#final-remarks" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>I hope this post was somewhat interesting to you, and you learned something/got inspired by it.
+If you have any feedback, feel free to message me on Discord (<code>Arraying#7363</code>, I accept pretty much all friend requests).
+If you have any ideas on how to improve the bot/develop it further, feel free to message me on Discord or leave a GitHub issue (<a href="https://github.com/Arraying/AndyInAction/issues">link for issues regarding the bot</a>, and <a href="https://github.com/Arraying/Andy/issues">link for issues regarding the algorithm</a>).</p>
+<p>Stay safe out there.</p>
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+    <div class="footer__inner">
+        <div class="copyright copyright--user">
+            <div>© 2025 Paul Hübner. All opinons are my own, and may not reflect Oracle's.</div>
+            <div>
+                Themed using <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Terminal.css</a> by <a href="https://github.com/panr" target="_blank">panr</a>.
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

@@ -10,10 +10,10 @@
     <lastBuildDate>Fri, 14 Mar 2025 21:33:12 +0100</lastBuildDate><atom:link href="/tags/fp/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Thoughts on Functional Programming</title>
-      <link>/post/state/</link>
+      <link>/posts/state/</link>
       <pubDate>Fri, 14 Mar 2025 21:33:12 +0100</pubDate>
       
-      <guid>/post/state/</guid>
+      <guid>/posts/state/</guid>
       <description>&lt;p&gt;One of the earliest frustrations I encountered in programming was that I had to re-do stuff I had already done before, maybe 6-12 months after first starting.
 Often writing similar code that was just about different enough to make copy/paste or reuse tricky is not fun, especially when the novelty factor is gone.
 Not to mention all the Java boilerplate&amp;hellip;&lt;/p&gt;</description>

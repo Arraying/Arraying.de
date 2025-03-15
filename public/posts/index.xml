@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Paul Hübner</title>
-    <link>/</link>
-    <description>Recent content on Paul Hübner</description>
+    <title>Posts on Paul Hübner</title>
+    <link>/posts/</link>
+    <description>Recent content in Posts on Paul Hübner</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <copyright>© 2025 Paul Hübner</copyright>
-    <lastBuildDate>Fri, 14 Mar 2025 21:33:12 +0100</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 14 Mar 2025 21:33:12 +0100</lastBuildDate><atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Thoughts on Functional Programming</title>
       <link>/posts/state/</link>
