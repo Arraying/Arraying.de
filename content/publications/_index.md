@@ -10,6 +10,6 @@ title: "Publications"
 
 # Theses:
 
-* *Work in progress Master's thesis in OpenJDK's garbage collection.*
+* P. Hübner, "Garbage Collector Agnostic Load Barriers: Moving Towards Flexible Ahead-of-Time Java Compilation," Master's thesis. KTH Royal Institute of Technology, Stockholm, 2025 [Online]. Available: https://urn.kb.se/resolve?urn=urn:nbn:se:kth:diva-368017
 
 * P. M. Hübner, "Type-Checking Modules and Imports using Scope Graphs: A Case Study on a Language with Relative, Unordered and Glob Import Semantics," Bachelor's thesis. Delft University of Technology, Delft, 2023 [Online]. Available: https://resolver.tudelft.nl/uuid:e7f16989-9aca-4707-9d4a-74eba2adc5e4
