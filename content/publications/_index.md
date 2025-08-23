@@ -4,7 +4,7 @@ title: "Publications"
 
 # Papers:
 
-* P. Hübner, A. Hu, I. Peng, and S. Markidis, “Apple vs. Oranges: Evaluating the Apple Silicon M-Series SoCs for HPC Performance and Efficiency,” 2025, arXiv Preprint. doi: 10.48550/ARXIV.2502.05317.
+* P. Hübner, A. Hu, I. Peng, and S. Markidis, “Apple vs. Oranges: Evaluating the Apple Silicon M-Series SoCs for HPC Performance and Efficiency,” 2025 IEEE International Parallel and Distributed Processing Symposium Workshops (IPDPSW). IEEE, pp. 45–54, June 03, 2025. doi: 10.1109/ipdpsw66978.2025.00013
 
 * C. Bach Poulsen, A. Zwaan, and P. Hübner, “A Monadic Framework for Name Resolution in Multi-phased Type Checkers,” Proceedings of the 22nd ACM SIGPLAN International Conference on Generative Programming: Concepts and Experiences. ACM, pp. 14–28, Oct. 22, 2023. doi: 10.1145/3624007.3624051
 
