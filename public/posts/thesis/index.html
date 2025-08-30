@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>GC-Agnostic Load Barriers :: Paul Hübner</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="What are GC barriers and how do they relate to ahead-of-time compilation? This blog post explores the intersection of HotSpot&amp;rsquo;s GCs and compilers through the lense of implementing GC-agnostic load barriers at the assembly level, and gives key insights on performance and overall takeaways.
+" />
+<meta name="keywords" content="computer science, programming, technology" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="/posts/thesis/" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css">
+
+  
+  <link rel="stylesheet" href="/css/code.min.4f0ccc8439f99bf7f7970298556b94011aabc1fcae743b6842fc3361a2da9ea3.css">
+
+  
+  <link rel="stylesheet" href="/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css">
+
+  
+  <link rel="stylesheet" href="/css/footer.min.eb8dfc2c6a7eafa36cd3ba92d63e69e849e2200e0002a228d137f236b09ecd75.css">
+
+  
+  <link rel="stylesheet" href="/css/gist.min.a751e8b0abe1ba8bc53ced52a38b19d8950fe78ca29454ea8c2595cf26aad5c0.css">
+
+  
+  <link rel="stylesheet" href="/css/header.min.75c7eb0e2872d95ff48109c6647d0223a38db52e2561dd87966eb5fc7c6bdac6.css">
+
+  
+  <link rel="stylesheet" href="/css/main.min.15870410d15d02abd22fb5ef00996f65a00d04b3a7435e9f83831c7c2298de88.css">
+
+  
+  <link rel="stylesheet" href="/css/menu.min.3c17467ebeb3d38663dce68f71f519901124fa5cbb4519b2fb0667a21e9aca39.css">
+
+  
+  <link rel="stylesheet" href="/css/pagination.min.bbb986dbce00a5ce5aca0504b7925fc1c581992a4bf57f163e5d69cc1db7d836.css">
+
+  
+  <link rel="stylesheet" href="/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css">
+
+  
+  <link rel="stylesheet" href="/css/syntax.min.a0773cce9310cb6d8ed23e50f005448facf29a53001b57e038828daa466b25c0.css">
+
+  
+  <link rel="stylesheet" href="/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css">
+
+  
+  <link rel="stylesheet" href="/css/terms.min.b81791663c3790e738e571cdbf802312390d30e4b1d8dc9d814a5b5454d0ac11.css">
+
+
+<link rel="stylesheet" href="/terminal.css">
+
+
+
+
+<link rel="shortcut icon" href="/favicon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="GC-Agnostic Load Barriers">
+<meta property="og:description" content="What are GC barriers and how do they relate to ahead-of-time compilation? This blog post explores the intersection of HotSpot&amp;rsquo;s GCs and compilers through the lense of implementing GC-agnostic load barriers at the assembly level, and gives key insights on performance and overall takeaways.
+" />
+<meta property="og:url" content="/posts/thesis/" />
+<meta property="og:site_name" content="Paul Hübner" />
+
+  <meta property="og:image" content="/og-image.png">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2025-08-27 18:00:00 &#43;0100 &#43;0100" />
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+
+<div class="container center">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    Paul Hübner
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/">Home</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+        
+          <li><a href="/posts">Blog</a></li>
+        
+      
+        
+          <li><a href="/publications">Publications</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/" >Home</a></li>
+        
+      
+        
+          <li><a href="/about" >About</a></li>
+        
+      
+        
+          <li><a href="/posts" >Blog</a></li>
+        
+      
+        
+          <li><a href="/publications" >Publications</a></li>
+        
+      
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="/posts/thesis/">GC-Agnostic Load Barriers</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2025-08-27</time><span class="post-author">Paul Hübner</span><span class="post-reading-time">7 min read (1388 words)</span></div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="/tags/java/">java</a>&nbsp;
+      
+      #<a href="/tags/jvm/">jvm</a>&nbsp;
+      
+      #<a href="/tags/gc/">gc</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+  
+
+  <div class="post-content"><div>
+        <p>What are GC barriers and how do they relate to ahead-of-time compilation? This blog post explores the intersection of HotSpot&rsquo;s GCs and compilers through the lense of implementing GC-agnostic load barriers at the assembly level, and gives key insights on performance and overall takeaways.</p>
+<p><strong>This blog post was originally published on Oracle&rsquo;s Java blog.</strong>
+<a href="https://inside.java/2025/08/27/thesis-gc-agnostic-load-barriers/">Click here to be redirected there instead.</a></p>
+<hr>
+<p>I recently completed my Master&rsquo;s degree in Software Engineering of Distributed Systems.
+For my thesis, I collaborated with Oracle&rsquo;s HotSpot GC and compiler development teams in the Stockholm office.
+With this post I would like to present my work and shed light onto the following topics:</p>
+<ul>
+<li>warmup process and how Project Leyden&rsquo;s looks into improving that;</li>
+<li>what loads are and why they sometimes require GC barriers;</li>
+<li>the Z Garbage Collector&rsquo;s actual barrier Assembly instructions;</li>
+<li>how to construct GC-agnostic barriers.</li>
+</ul>
+<h2 id="warmup">Warmup<a href="#warmup" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Like an airplane spooling up its engines to reach take-off speed, Java code on the HotSpot JVM undergoes a process called warmup before it starts executing as fast as possible.
+During warmup, applications are interpreted and/or profiled, in order to determine how to just-in-time compile them into optimized machine code.
+This is in contrast to ahead-of-time compilation (e.g., C++), where application code is optimized at compile time, bypassing the need for warmup at runtime.
+Still, runtime-driven optimizations cannot be baked in, as they are in the HotSpot JVM.</p>
+<p>Luckily, we can have our cake and eat it too.
+<a href="https://openjdk.org/projects/leyden/">Project Leyden</a> explores how to decrease warmup by doing ahead-of-time compilation.
+A training run executes the application, allowing warmed-up machine code to be used immediately during production runs.
+This bypasses the need to warm up in production, drastically increasing throughput.</p>
+<h2 id="problem-statement">Problem Statement<a href="#problem-statement" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>A major drawback of the current ahead-of-time compiled code is that it requires the same GCs during training and in production.
+This detriments runtime flexibility, as different GCs have <a href="https://docs.oracle.com/en/java/javase/24/gctuning/available-collectors.html">different advantages/disadvantages</a>.
+The culprits for this requirement are GC barriers, which are snippets of bookkeeping instructions inserted around memory operations.
+This bookkeeping is crucial to ensure that the GCs remain sound!
+Importantly, <em>where</em>, <em>when</em>, and <em>how</em> to do this bookkeeping depends entirely on the memory operation and GC.
+Conesquently, compiled code using one GC cannot be used with another GC.</p>
+<p>In my work, I only focused on one memory operation: field accesses (e.g., <code>int foo = point.x;</code> represents an access of field <code>x</code>).
+Field accesses are called <strong>loads</strong>, and I will use this terminology going forward.
+My work centered on unifying the <em>when</em> and <em>how</em> to form GC-agnostic load barriers.
+Since most things in computer science are trade-offs, my research question was: <strong>how does code using GC-agnostic barriers perform compared to GC-specific barriers?</strong></p>
+<h2 id="implementation">Implementation<a href="#implementation" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>In my thesis, I delimited myself to inspecting Serial, Parallel, G1 and Z Garbage Collectors on AArch64 (my laptop&rsquo;s architecture).
+I only focused on the <a href="https://openjdk.org/groups/hotspot/docs/HotSpotGlossary.html">C2 JIT-compiler</a> as this produces the long-living machine code and Project Leyden uses it.
+In this section, I will only consider <a href="https://wiki.openjdk.org/display/HotSpot/CompressedOops">uncompressed Oops</a>, the only compression mode supported by all four of the above GCs.</p>
+<h3 id="answering-when">Answering <em>when</em><a href="#answering-when" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>There are several operations that could take place during loads, depending on the type of reference.
+When an object&rsquo;s field is read, this is a strong reference, and the access classified as a <strong>strong load</strong>.
+Java also has <a href="https://docs.oracle.com/en/java/javase/24/docs/api/java.base/java/lang/ref/WeakReference.html">weak references</a>, whose accesses are <strong>weak loads</strong>.
+If an object is only referred to by weak references, it will be garbage collected.
+This is useful for caches, and is for example used by <a href="https://docs.oracle.com/en/java/javase/24/docs/api/java.base/java/util/WeakHashMap.html"><code>WeakHashMap</code></a>.</p>
+<p>Presently, whenever a load occurs, strong or weak, a load barrier <em>may</em> be emitted <em>before</em> the field is dereferenced.
+Under which condition this happens is shown in the table below.</p>
+<table>
+<thead>
+<tr>
+<th>GC</th>
+<th>Strong load emits barrier?</th>
+<th>Weak load emits barrier?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Serial</td>
+<td>❌ No</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td>Parallel</td>
+<td>❌ No</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td>G1</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Z</td>
+<td>✅ Yes</td>
+<td>✅ Yes</td>
+</tr>
+</tbody>
+</table>
+<p>The takeaway here is that for both strong and weak loads, at least one GC emits a barrier.
+Therefore, a GC-agnostic load barrier must emit a load barrier at every strong and weak load.</p>
+<h3 id="answering-how">Answering <em>how</em><a href="#answering-how" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<blockquote>
+<p>ℹ️ This section dives into AArch64 assembly. It is <em>not</em> required to understand why this assembly does what it does, only the instructions and their operands are relevant!</p>
+</blockquote>
+<p>The high-level idea is to emit the same instructions for all GCs (for strong and weak loads, respectively), and then to &ldquo;patch up&rdquo; the operands to match GC-specific requirements during first-time execution.
+HotSpot-compiled machine code sits in memory, with each instruction being 32 bits wide (on AArch64).
+To patch an instruction at a given memory location, one can cast its value to a 32-bit unsigned integer and modify it with bitwise operations.
+Patching is not novel to GC-agnostic barriers, as Z already employs this technique for its barriers.</p>
+<p>GC agnostic barriers are best illustrated by example, I will use that of strong loads.
+Since Z is the only GC that requires a load barrier for strong loads, its load barrier is used as the template for the agnostic load barrier.
+Out of the box, it then works for Z.
+Using instruction patching at runtime, Serial, Parallel, and G1 then modify the load barrier&rsquo;s instructions to not do anything.</p>
+<p>Z&rsquo;s strong load barrier looks as follows.
+In this case, the object reference is a <a href="https://youtu.be/YyXjC68l8mw?feature=shared&amp;t=816">colored pointer</a> stored in register <code>0</code>.</p>
+<pre tabindex="0"><code>tbz  w0, Z_MASK, #0x8
+b    Z_SLOW_PATH
+lsr  x0, x0, #16
+</code></pre><p>If some bit of the address - identified by <code>Z_MASK</code> - is zero, it jumps over the next <code>b</code> instruction, not executing it.
+The next instruction branches to a &ldquo;slow path&rdquo;, which is a GC terminology for necessary but slow bookkeeping instructions.
+Lastly, the <a href="https://youtu.be/YyXjC68l8mw?feature=shared&amp;t=816">colored pointer</a> is stripped of its least-significant 16 bits, the metadata bits, retaining just the address.</p>
+<p>Serial, Parallel, and G1 Garbage Collectors need to make sure that this barrier doesn&rsquo;t do anything.
+They do not need to perform bookkeeping for strong loads.
+This is done by patching the operands of the instructions in such a way that no actual work gets done.
+The result is as follows:</p>
+<pre tabindex="0"><code>tbz  wzr, Z_MASK, #0x8
+b    Z_SLOW_PATH
+lsr  x0, x0, #0
+</code></pre><p>Instead of testing the address register <code>0</code>, the first instruction is changed to operate on the zero register <code>wzr</code>, whose value is always zero.
+Therefore, it will always jump over the next <code>b</code> instruction, and Z&rsquo;s bookkeeping is never performed.
+The address is still in register <code>0</code>, and since the other GCs do not have colored pointers, the amount shifted right by is patched to zero, which leaves the address unmodified.
+In the end, no actual work gets done.</p>
+<p>To summarize, <strong>by patching operands, we&rsquo;ve achieved GC-agnosticism for strong loads!</strong>
+The same ideas apply to the weak load barrier, omitted for brevity, where the instructions are a hybrid between those of G1 and Z.</p>
+<h2 id="performance-results">Performance Results<a href="#performance-results" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Emitting a bunch of extra instructions for GCs that do not need them has got to be detrimental to performance, right?
+Unsurprisingly, yes.
+When looking at execution time and P90 latencies, the <em>worst-case</em> regressions are shown in the table below:</p>
+<table>
+<thead>
+<tr>
+<th>GC</th>
+<th>Execution time regression</th>
+<th>P90 latency regression</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Serial</td>
+<td>17%</td>
+<td>15%</td>
+</tr>
+<tr>
+<td>Parallel</td>
+<td>19%</td>
+<td>17%</td>
+</tr>
+<tr>
+<td>G1</td>
+<td>17%</td>
+<td>20%</td>
+</tr>
+<tr>
+<td>Z</td>
+<td>23%</td>
+<td>39%</td>
+</tr>
+</tbody>
+</table>
+<p>These results are <strong>not necessarily bad!</strong>
+Many experiments only had single-digit percentage regressions.
+Furthermore, interpreted code is generally an order of magnitude slower than compiled code, so in the end, there is still a net benefit.</p>
+<h2 id="conclusions-and-future-work">Conclusions and Future Work<a href="#conclusions-and-future-work" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>GC-agnostic load barriers can be implemented through instruction patching.
+A trade-off between the ability to choose which GC and runtime performance has to be made when using ahead-of-time compilation.
+Nonetheless, GC-agnostic load barriers present a viable prototype.
+To gain a broader understanding of the significant impact of GC-agnostic load barriers, the next step would be to integrate them with GC-agnostic store barriers, as investigated by my colleagues Arveen Emdad and Antón Seoane Ampudia.</p>
+<p>Thank you to everyone at the Stockholm office for their guidance and support.
+In particular, thank you to Erik Österlund, Roberto Castañeda Lozano, Tobias Wrigstad, and Daniel Lundén for their supervision and support, and Jesper Wilhelmsson for this tremendous opportunity to explore the inner workings of HotSpot&rsquo;s C2 compiler and GCs.
+Thanks to Ana Maria Mihalceanu and Antón Seoane Ampudia for feedback on this post.</p>
+<p>If this post piqued your interest, I encourage you to take a look at my <a href="https://urn.kb.se/resolve?urn=urn:nbn:se:kth:diva-368017">thesis report</a> as it contains more details and results.</p>
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+    <div class="footer__inner">
+        <div class="copyright copyright--user">
+            <div>© 2025 Paul Hübner. All opinons are my own, and may not reflect Oracle's.</div>
+            <div>
+                Themed using <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Terminal.css</a> by <a href="https://github.com/panr" target="_blank">panr</a>.
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>
