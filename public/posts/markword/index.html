@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Help, My Java Object Vanished (and the GC is Not at Fault) :: Paul Hübner</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Today I&amp;rsquo;m going to talk about a recent journey as a HotSpot Java Virtual Machine developer working on the OpenJDK project. While running tests for a new feature, I realized my Java objects and classes were arbitrarily disappearing! What followed was probably the most interesting debugging and fixing experience of my life (so far), which I wanted to share with the world.
+" />
+<meta name="keywords" content="computer science, programming, technology" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="/posts/markword/" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css">
+
+  
+  <link rel="stylesheet" href="/css/code.min.4f0ccc8439f99bf7f7970298556b94011aabc1fcae743b6842fc3361a2da9ea3.css">
+
+  
+  <link rel="stylesheet" href="/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css">
+
+  
+  <link rel="stylesheet" href="/css/footer.min.eb8dfc2c6a7eafa36cd3ba92d63e69e849e2200e0002a228d137f236b09ecd75.css">
+
+  
+  <link rel="stylesheet" href="/css/gist.min.a751e8b0abe1ba8bc53ced52a38b19d8950fe78ca29454ea8c2595cf26aad5c0.css">
+
+  
+  <link rel="stylesheet" href="/css/header.min.75c7eb0e2872d95ff48109c6647d0223a38db52e2561dd87966eb5fc7c6bdac6.css">
+
+  
+  <link rel="stylesheet" href="/css/main.min.15870410d15d02abd22fb5ef00996f65a00d04b3a7435e9f83831c7c2298de88.css">
+
+  
+  <link rel="stylesheet" href="/css/menu.min.3c17467ebeb3d38663dce68f71f519901124fa5cbb4519b2fb0667a21e9aca39.css">
+
+  
+  <link rel="stylesheet" href="/css/pagination.min.bbb986dbce00a5ce5aca0504b7925fc1c581992a4bf57f163e5d69cc1db7d836.css">
+
+  
+  <link rel="stylesheet" href="/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css">
+
+  
+  <link rel="stylesheet" href="/css/syntax.min.a0773cce9310cb6d8ed23e50f005448facf29a53001b57e038828daa466b25c0.css">
+
+  
+  <link rel="stylesheet" href="/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css">
+
+  
+  <link rel="stylesheet" href="/css/terms.min.b81791663c3790e738e571cdbf802312390d30e4b1d8dc9d814a5b5454d0ac11.css">
+
+
+<link rel="stylesheet" href="/terminal.css">
+
+
+
+
+<link rel="shortcut icon" href="/favicon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Help, My Java Object Vanished (and the GC is Not at Fault)">
+<meta property="og:description" content="Today I&amp;rsquo;m going to talk about a recent journey as a HotSpot Java Virtual Machine developer working on the OpenJDK project. While running tests for a new feature, I realized my Java objects and classes were arbitrarily disappearing! What followed was probably the most interesting debugging and fixing experience of my life (so far), which I wanted to share with the world.
+" />
+<meta property="og:url" content="/posts/markword/" />
+<meta property="og:site_name" content="Paul Hübner" />
+
+  <meta property="og:image" content="/og-image.png">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2025-10-18 12:00:00 &#43;0200 CEST" />
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+
+<div class="container center">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    Paul Hübner
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/">Home</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+        
+          <li><a href="/posts">Blog</a></li>
+        
+      
+        
+          <li><a href="/publications">Publications</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/" >Home</a></li>
+        
+      
+        
+          <li><a href="/about" >About</a></li>
+        
+      
+        
+          <li><a href="/posts" >Blog</a></li>
+        
+      
+        
+          <li><a href="/publications" >Publications</a></li>
+        
+      
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="/posts/markword/">Help, My Java Object Vanished (and the GC is Not at Fault)</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2025-10-18</time><span class="post-author">Paul Hübner</span><span class="post-reading-time">30 min read (6260 words)</span></div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="/tags/java/">java</a>&nbsp;
+      
+      #<a href="/tags/jvm/">jvm</a>&nbsp;
+      
+      #<a href="/tags/compiler/">compiler</a>&nbsp;
+      
+      #<a href="/tags/valhalla/">valhalla</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+  
+
+  <div class="post-content"><div>
+        <p>Today I&rsquo;m going to talk about a recent journey as a HotSpot Java Virtual Machine developer working on the OpenJDK project. While running tests for a new feature, I realized my Java objects and classes were arbitrarily disappearing! What followed was probably the most interesting debugging and fixing experience of my life (so far), which I wanted to share with the world.</p>
+<p>This post is targeted towards a wider (computer science) audience. Knowledge about Java or the JVM is <strong>not expected</strong>, but a slight curiosity towards low-level programming is encouraged. My intentions with this essay are to:</p>
+<ol>
+<li>introduce Project Valhalla and value objects;</li>
+<li>give insights into the inner workings of HotSpot (&amp; hopefully motivate folks to contribute);</li>
+<li>pragmatically demonstrate how JVM flags can be used to help you, the developer;</li>
+<li>teach some lessons I learned in debugging;</li>
+<li>document processes for my future self/colleagues; and</li>
+<li>give myself an opportunity to yap about an achievement (and draw bad ASCII art).</li>
+</ol>
+<p>I&rsquo;ve written <em>a lot</em>. <strong>I&rsquo;ve included summaries</strong> for each of the sections, sans takeaways. They&rsquo;re designed to be coherent, so use them to your advantage and <em>read what you find interesting</em>, although I truly believe there is value in reading the entire post.</p>
+<h2 id="introduction">Introduction<a href="#introduction" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>So what was I doing? I was <a href="https://bugs.openjdk.org/browse/JDK-8367073">changing the <code>markWord</code> to conform to the format specified by JEP450</a> for <a href="https://openjdk.org/projects/valhalla/">Project Valhalla</a>. It&rsquo;s likely these terms won&rsquo;t mean anything to you, so let me break it down.</p>
+<h3 id="java-101">Java 101<a href="#java-101" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>Java is a multi-purpose programming language. It is compiled to platform-independent Java bytecode. This bytecode is then executed by a Java Virtual Machine, which performs, among other things, automatic garbage collection. The reference implementation of the JVM is called HotSpot. It features just-in-time compilation, which compiles (some) frequently executed Java methods into native code for performance gains.</p>
+<h3 id="object-headers">Object Headers<a href="#object-headers" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>Java objects reside in the heap. Each object has metadata associated with it, which is stored in the <strong>object header</strong>. If there&rsquo;s anything I want you to take away from this, it&rsquo;s that there are some bits in there that are very interesting.</p>
+<p>Traditionally, the object header consists of the <strong>mark word</strong> (called <code>markWord</code> in source code) and <strong>class word</strong> (contains the class pointer, which is totally irrelevant to this blog post), totaling 96-128 bits on 64-bit architectures. I&rsquo;ll go more in-depth about the mark word soon.</p>
+<p>In order to reduce the size, JDK 24 introduces <a href="https://openjdk.org/jeps/450">JEP 450: <strong>Compact Object Headers</strong></a><sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>. Essentially, they realized that it was possible to squeeze the class pointer into the mark word, making the class word redundant. Consequently, with Compact Object Headers, object headers total 64 bits on 64-bit architectures.</p>
+<p>So, what sort of information is in the mark word? JEP 450 does a good job at <a href="https://openjdk.org/jeps/450">explaining the exact layout</a>, but for the sake of this blogpost only the eleven least-significant bits are relevant. They&rsquo;re laid out on 64-bit systems as follows<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>:</p>
+<pre tabindex="0"><code>    7   3  0
+ VVVVAAAASTT
+          ^^----- tag bits
+         ^------- self-forwarding bit (GC)
+     ^^^^-------- age bits (GC)
+ ^^^^------------ Valhalla-reserved bits
+</code></pre><p>Let&rsquo;s <em>briefly</em> go through what these mean:</p>
+<ul>
+<li><code>TT</code> represents the two tag bits, and they are used for locking. I&rsquo;m not going to go into monitoring in depth. Briefly, <code>01</code> indicates the object is not locked, whereas <code>00</code> and <code>10</code> indicate lightweight<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup> and monitor<sup id="fnref1:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup> locking, respectfully.</li>
+<li><code>S</code> represents the self-forwarding bit. It is used by some garbage collectors, but the details are irrelevant.</li>
+<li><code>AAAA</code> represents the age bits. Generational garbage collectors use these bits to track object tenuring.</li>
+<li><code>VVVV</code> represents four distinct Valhalla-reserved bits (and also called <code>unused_gap_bits</code> in the implementation). More on them later.</li>
+</ul>
+<h3 id="project-valhalla">Project Valhalla<a href="#project-valhalla" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p><a href="https://openjdk.org/projects/valhalla/">Project Valhalla</a> is also dubbed &ldquo;Java&rsquo;s Epic Refactor&rdquo; with many feature sets in development. The relevant one here is <a href="https://openjdk.org/jeps/401">JEP 401: Value Classes and Objects</a>. In short, value objects are distinguished by their fields, which allows for optimizations such as heap flattening<sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup> and scalarization<sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup>. Note that &ldquo;regular classes/objects&rdquo; are called <strong>identity classes/objects</strong>.</p>
+<p>Valhalla is a fork of the JDK. Although we frequently pull in upstream changes, Valhalla naturally lags behind mainline development. When Compact Object Headers was merged into Valhalla, a slightly different layout of the eleven least-significant bits was chosen, such that the merge would be <em>less invasive</em>. The chosen format was as follows (contrasted with the JEP 450 layout):</p>
+<pre tabindex="0"><code>    7   3  0
+ VVVVAAAASTT  &lt;- JEP 450
+ VVVAAAAVSTT  &lt;- Valhalla
+        ^------- we care about this bit, value object bit
+</code></pre><p>As illustrated, the least-significant Valhalla bit resided below the age bits. <strong>I&rsquo;d like to draw attention to the <code>V</code> in position 3</strong><sup id="fnref:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup>. This is the bit that, when set, indicates whether the object is a value object. <strong>It&rsquo;s also the central concept in this post</strong>. Feel free to disregard bits 8-10.</p>
+<p>Why do we need this bit? HotSpot does different things for value objects and identity objects in many places (for example, the optimizations I mentioned earlier). We need a quick and easy way to check if something is a value object, hence a bit in the object header.</p>
+<h3 id="my-change">My Change<a href="#my-change" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>My change is pretty straightforward: updating the eleven least-significant bits from <code>VVVAAAAVSTT</code> to <code>VVVVAAAASTT</code> (as JEP 450 dictates). You can think of this as moving the value object bit up (or age bits down).</p>
+<h3 id="summary">Summary<a href="#summary" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>The mark word is part of the object header and contains metadata for Java objects. Project Valhalla introduces value objects. These are objects distinguished solely by the values of their fields. In Valhalla, one of the header metadata bits indicates whether the object is a value object. In Valhalla, this was at bit index 3, and needed to be moved to bit index 7 to comply with Compact Object Headers (JEP 450).</p>
+<h2 id="widespread-failure">Widespread Failure<a href="#widespread-failure" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The change was relatively straightforward. Unfortunately, it caused 75 test failures on several architectures and platforms. These test failures were problematic because they were:</p>
+<ol>
+<li><strong>Widespread</strong>. Many different components (mostly <em>outside</em> the VM) were affected.</li>
+<li><strong>Intermittent</strong>. They would sometimes pass, and sometimes fail. As I would later find out, this also made them difficult to reproduce.</li>
+<li><strong>Non-obvious</strong>. In the VM, we have a plethora of assertions. Most of the time something goes wrong, an assertion fails or the VM crashes with e.g. a segmentation fault. Here, it seems like (almost all) the issues manifested at the application level.</li>
+</ol>
+<p>When it comes to debugging, that&rsquo;s a really bad scenario. Considering the HotSpot codebase is ~550 KLoC<sup id="fnref:7"><a href="#fn:7" class="footnote-ref" role="doc-noteref">7</a></sup>, not to mention extremely complex, we really want reproducible crashes in a subcomponent.</p>
+<p>Throughout my debugging journey, three distinct symptoms were relevant. Together, they describe many of the failing test cases.</p>
+<h3 id="symptom-a-failed-unit-tests">Symptom A: Failed Unit Tests<a href="#symptom-a-failed-unit-tests" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>In HotSpot, we have unit tests (written with the GoogleTest framework). Four of the <a href="https://github.com/openjdk/valhalla/blob/a687d94e6afcb5326f558f196dcefe2dbbc72b10/test/hotspot/gtest/oops/test_markWord.cpp"><code>markWord</code> tests</a> failed:</p>
+<pre tabindex="0"><code>[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] markWord.inline_type_prototype_vm
+[  FAILED  ] markWord.null_free_flat_array_prototype_vm
+[  FAILED  ] markWord.nullable_flat_array_prototype_vm
+[  FAILED  ] markWord.null_free_array_prototype_vm
+</code></pre><h3 id="symptom-b-javalangassertionerror">Symptom B: <code>java.lang.AssertionError</code><a href="#symptom-b-javalangassertionerror" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>There were multiple tests, such as <a href="https://github.com/openjdk/valhalla/blob/a687d94e6afcb5326f558f196dcefe2dbbc72b10/test/jdk/java/util/jar/JarFile/mrjar/MultiReleaseJarProperties.java"><code>java/util/jar/JarFile/mrjar/MultiReleaseJarProperties.java</code></a> or <a href="https://github.com/openjdk/valhalla/blob/a687d94e6afcb5326f558f196dcefe2dbbc72b10/test/jdk/java/util/logging/modules/GetResourceBundleTest.java"><code>java/util/logging/modules/GetResourceBundleTest.java</code></a> which failed in the <strong>TestNG harness</strong> with a Java <code>AssertionError</code><sup id="fnref:8"><a href="#fn:8" class="footnote-ref" role="doc-noteref">8</a></sup>.</p>
+<pre tabindex="0"><code>java.lang.AssertionError: l should not be null
+	at org.testng.ClassMethodMap.removeAndCheckIfLast(ClassMethodMap.java:55)
+	at org.testng.internal.TestMethodWorker.invokeAfterClassMethods(TestMethodWorker.java:193)
+    [...]
+	at com.sun.javatest.regtest.agent.MainActionHelper$AgentVMRunnable.run(MainActionHelper.java:335)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+</code></pre><p>What&rsquo;s very curious about this failure is if you check <a href="https://github.com/testng-team/testng/blob/d50b2ad2d6809d52131a07071fe229b1b901e08c/testng-core/src/main/java/org/testng/ClassMethodMap.java#L46">the source code</a>, they actually perform a null check on the variable <code>l</code>, so it shouldn&rsquo;t just disappear!</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">removeAndCheckIfLast</span><span class="o">(</span><span class="n">ITestNGMethod</span> <span class="n">m</span><span class="o">,</span> <span class="n">Object</span> <span class="n">instance</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Collection</span><span class="o">&lt;</span><span class="n">ITestNGMethod</span><span class="o">&gt;</span> <span class="n">l</span> <span class="o">=</span> <span class="n">classMap</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">instance</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="o">(</span><span class="n">l</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalStateException</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">        <span class="s">&#34;Could not find any methods associated with test class instance &#34;</span> <span class="o">+</span> <span class="n">instance</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="n">l</span><span class="o">.</span><span class="na">remove</span><span class="o">(</span><span class="n">m</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// It&#39;s the last method of this class if all the methods remaining in the list belong to a
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// different class
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">for</span> <span class="o">(</span><span class="n">ITestNGMethod</span> <span class="n">tm</span> <span class="o">:</span> <span class="n">l</span><span class="o">)</span> <span class="o">{</span> <span class="c1">// &lt;- AssertionError thrown here
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="o">(</span><span class="n">tm</span><span class="o">.</span><span class="na">getEnabled</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="n">tm</span><span class="o">.</span><span class="na">getTestClass</span><span class="o">().</span><span class="na">equals</span><span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">getTestClass</span><span class="o">()))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h3 id="symptom-c-javalangnoclassdeffounderror">Symptom C: <code>java.lang.NoClassDefFoundError</code><a href="#symptom-c-javalangnoclassdeffounderror" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>A few tests within <code>sun/security/krb5</code> such as <a href="https://github.com/openjdk/valhalla/blob/a687d94e6afcb5326f558f196dcefe2dbbc72b10/test/jdk/sun/security/krb5/etype/UnsupportedKeyType.java"><code>sun/security/krb5/etype/UnsupportedKeyType.java</code></a> failed with a <code>NoClassDefFoundError</code>. The actual class that could not be found differed between tests and even between test runs of the same test. Classic intermittent shenanigans.</p>
+<pre tabindex="0"><code>java.lang.NoClassDefFoundError: sun/security/krb5/internal/Krb5
+	at java.base/jdk.internal.loader.NativeLibraries.load(Native Method)
+	[...]
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+</code></pre><h3 id="summary-1">Summary<a href="#summary-1" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>I implemented the <code>markWord</code> changes and got many widespread, intermittent, and non-obvious test failures. Crudely summarized, &ldquo;things are null when they shouldn&rsquo;t be.&rdquo;</p>
+<h2 id="act-i-semantic-difficulties">Act I: Semantic Difficulties<a href="#act-i-semantic-difficulties" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The lowest hanging fruit here are the failed unit tests. Not only are they written in C++, they also expose the functions they are testing. The failure was straightforward:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">EXPECT_TRUE</span><span class="p">(</span><span class="n">mark</span><span class="p">.</span><span class="n">decode_pointer</span><span class="p">()</span> <span class="o">==</span> <span class="k">nullptr</span><span class="p">);</span>
+</span></span></code></pre></div><p>Where <code>mark</code> is the <code>markWord</code> of a value object. Taking a look at the source code:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// Recover address of oop from encoded form used in mark
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kr">inline</span> <span class="kt">void</span><span class="o">*</span> <span class="nf">decode_pointer</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="p">(</span><span class="n">EnableValhalla</span> <span class="o">&amp;&amp;</span> <span class="n">_value</span> <span class="o">&lt;</span> <span class="n">static_prototype_value_max</span><span class="p">)</span> <span class="o">?</span> <span class="k">nullptr</span> <span class="o">:</span>
+</span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span> <span class="p">(</span><span class="n">clear_lock_bits</span><span class="p">().</span><span class="n">value</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>It became clear to me that there are some Valhalla-specific shenanigans going on (by the <code>EnableValhalla</code>). But what&rsquo;s a <code>static_prototype_value_max</code>?</p>
+<h3 id="static-prototypes">Static Prototypes<a href="#static-prototypes" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>Looking in the <code>markWord.hpp</code>, there were a few constants related to <code>static_prototype</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  <span class="k">static</span> <span class="k">const</span> <span class="n">uintptr_t</span> <span class="n">static_prototype_mask</span>    <span class="o">=</span> <span class="p">...;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">static</span> <span class="k">const</span> <span class="n">uintptr_t</span> <span class="n">static_prototype_mask_in_place</span> <span class="o">=</span> <span class="n">static_prototype_mask</span> <span class="o">&lt;&lt;</span> <span class="n">lock_bits</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">static</span> <span class="k">const</span> <span class="n">uintptr_t</span> <span class="n">static_prototype_value_max</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">age_shift</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+</span></span></code></pre></div><p>It turns out, <code>static_prototype_mask</code> and <code>static_prototype_mask_in_place</code> are unused. The <code>static_prototype_max_value</code> in question is just all bits up to the age bits set to 1. Recall that the legacy bits are <code>AAAAVSLL</code>. This would generate a mask of <code>1111</code>. Since I moved the position of the age bits, this mask changed. Maybe that&rsquo;s why the test fails?</p>
+<p>Why do we do this? The documentation says the following about static prototypes:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">//  Static types bits are recorded in the &#34;klass-&gt;prototype_header()&#34;, displaced
+</span></span></span><span class="line"><span class="cl"><span class="c1">//  mark should simply use the prototype header as &#34;slow path&#34;, rather chasing
+</span></span></span><span class="line"><span class="cl"><span class="c1">//  monitor or stack lock races.
+</span></span></span></code></pre></div><p>What are static type bits? What&rsquo;s a static type? I have no clue. My colleagues said it was part of an older model of Valhalla and no longer a thing. The verdict: <strong>delete the conditional and remove all references to static types</strong>. I did that, and while the (now slightly altered) unit tests passed, all my application-level failures still persisted.</p>
+<h3 id="emulation">Emulation<a href="#emulation" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>One of the things I&rsquo;ve been taught in education and practice is that in general one should focus on understanding. While that&rsquo;s certainly true, I don&rsquo;t think anyone understands HotSpot, and knowledge is very compartmentalized. Small changes in one place could go against assumptions in another and cause bizarre failures.</p>
+<p>To save myself a reasoning-induced headache, I decided to emulate the old behaviour in <code>decode_pointer()</code> by translating the current <code>markWord</code> into the legacy format and then keeping the static type check. Maybe there was some counterpart or invariant somewhere in the VM that magically made it work. If the emulated version worked, it would give me some more clues about where to poke around further.</p>
+<p>The process of emulating wasn&rsquo;t very straightforard:</p>
+<ol>
+<li>Changing the <code>markWord</code> required recompilation of many, many files, leading to ~10 minute builds for every change. Very annoying when trying to rapidly iterate.</li>
+<li>To run tests (incl. unit tests), the infrastructure needs to build the JDK. To build the JDK, one needs to compile classes via <code>javac</code>, which in turn uses HotSpot. If one makes catastrophic changes in HotSpot, one will crash while building the JDK, meaning <strong>one can&rsquo;t run the C++ GoogleTest unit tests</strong>.</li>
+</ol>
+<p>Specifically with regards to (2), there was an assertion plaguing me:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">markWord</span> <span class="n">m</span> <span class="o">=</span> <span class="n">markWord</span><span class="o">::</span><span class="n">encode_pointer_as_mark</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">assert</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">decode_pointer</span><span class="p">()</span> <span class="o">==</span> <span class="n">p</span><span class="p">,</span> <span class="s">&#34;encoding must be reversible&#34;</span><span class="p">);</span>
+</span></span></code></pre></div><p>It&rsquo;s not important to know what this does, just that encoding a mark word must be <a href="https://en.wikipedia.org/wiki/Inverse_function">invertible</a>. So, whatever I was doing in <code>decode_pointer</code> broke this property.</p>
+<p>Since much of the <code>markWord.{hpp, cpp}</code> was just pure C++, I ended up copying the files into its own C++ project and iterating there. This gave me quicker turnaround times, and I could test for invertibility without breaking the JDK build. It ain&rsquo;t pretty, but it worked.</p>
+<p>Unfortunately, even with emulation, I still saw a plethora of test failures. The dreaded <code>java.lang.AssertionError</code> and <code>java.lang.NoClassDefFoundError</code> errors persisted. I stripped the emulation, removed the static type checking code again, updated the unit tests, and cut my losses.</p>
+<h3 id="summary-2">Summary<a href="#summary-2" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>When debugging the failed unit test, I realized it tested for semantics that no longer existed. Even when emulating the old behaviour, my issues still persisted. While I had succeeded in removing dead code and updating unit tests, this didn&rsquo;t fix the plethora of broken Java application-level tests.</p>
+<h2 id="act-ii-reduce-reproduce--recycle">Act II: Reduce, Reproduce &amp; Recycle<a href="#act-ii-reduce-reproduce--recycle" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<blockquote>
+<p>ℹ️ I&rsquo;ve linearized the order of events in this Act for readability and understandability. In reality, I bounced between the failing test cases and investigations quite a lot. I&rsquo;m also repeating some principles that may seem obvious, but I believe there is value in restating them.</p>
+</blockquote>
+<p>Failures in application code can be notoriously difficult to debug. What&rsquo;s particularly hard is when you don&rsquo;t know where the issue(s) originated from. If a HTTP server errors, it&rsquo;s probably in that route&rsquo;s controller or in the middleware stack. That&rsquo;s not to say that it&rsquo;s straightforward to understand or fix (especially getting to the root of cascading microservice failures!), but it provides a starting point.</p>
+<p>HotSpot has many moving parts, so in many cases this adds more dimensions to the problem. <em>Temporally</em>, failures can manifest much later after the introduction of the bug. For example, only after the 10th garbage collection cycle. The <em>locality</em> is also non-obvious sometimes. Take a miscompilation<sup id="fnref:9"><a href="#fn:9" class="footnote-ref" role="doc-noteref">9</a></sup> for example, it could change the state of a variable and break an invariant a completely unrelated component of the virtual machine. Assertions <em>can</em> stop bugs from spreading too far, but can&rsquo;t ensure locality.</p>
+<p>To stay sane, it&rsquo;s important to <strong>reduce the size of the programs</strong> and to ensure that <strong>bugs are reproducible</strong>. Unfortunately, neither of these can be taken for granted.</p>
+<h3 id="action-plan">Action Plan<a href="#action-plan" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>With that in mind, it was time for an action plan. These are questions I try to answer in order to get a better understanding of what is going on, a prerequisite to bugfixing.</p>
+<ul>
+<li><strong>When are we failing?</strong> Can we increase and decrease our chance of failure?</li>
+<li><strong>Where are we failing?</strong> This has several sub-questions:
+<ul>
+<li>With which <em>component/feature</em> (e.g. garbage collection, Compact Object Headers) does the bug manifest?</li>
+<li>Is there a place in HotSpot source code that is suspicious?</li>
+<li>Where does the bug manifest in the application code?</li>
+</ul>
+</li>
+</ul>
+<h3 id="c2">C2<a href="#c2" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>On top of a bytecode interpreter, HotSpot has <strong>two just-in-time compilers, C1 and C2</strong>. There is no &ldquo;the JIT compiler&rdquo;. C1 compiles fast but is limited in terms of optimizations, C2 produces extremely optimized machine code but takes comparatively long to run. In the past, client VMs (i.e. those for end users) would ship C1, and server VMs came with the C2 compiler. Nowadays, both C1 and C2 compile your Java code in a process called <a href="https://www.baeldung.com/jvm-tiered-compilation">tiered compilation</a><sup id="fnref:10"><a href="#fn:10" class="footnote-ref" role="doc-noteref">10</a></sup>. Note that <strong>not all methods will be JIT compiled</strong>. HotSpot uses extensive profiling to decide which methods are worth compiling with which compiler.</p>
+<p>There are six garbage collectors in the source code, though those that get shipped depends on your JDK vendor. My personal configuration include Serial &amp; Parallel<sup id="fnref:11"><a href="#fn:11" class="footnote-ref" role="doc-noteref">11</a></sup>, G1<sup id="fnref:12"><a href="#fn:12" class="footnote-ref" role="doc-noteref">12</a></sup>, and Z<sup id="fnref:13"><a href="#fn:13" class="footnote-ref" role="doc-noteref">13</a></sup>.</p>
+<p>The table below shows how I generally target components. Initial trial-and-error found that the tests mentioned above would usually fail within five runs. So, I repeated each experiment 20 times.</p>
+<table>
+<thead>
+<tr>
+<th>Component to target</th>
+<th>JVM flags</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Interpreter</td>
+<td><code>-Xint</code></td>
+<td>Forces all code to be run in the interpreter.</td>
+</tr>
+<tr>
+<td>C1 only, trivial methods</td>
+<td><code>-Xcomp -XX:TieredStopAtLevel=1</code></td>
+<td>Forces JIT compilation of <em>everything</em>, and stops after C1 compiling trivial methods.</td>
+</tr>
+<tr>
+<td>C1 only, fully compiled</td>
+<td><code>-Xcomp -XX:TieredStopAtLevel=3</code></td>
+<td>Same as above, but with more profiling.</td>
+</tr>
+<tr>
+<td>C2 only</td>
+<td><code>-Xcomp -XX:-TieredCompilation</code></td>
+<td>Compilation without tiers forces C2.</td>
+</tr>
+<tr>
+<td>Serial GC</td>
+<td><code>-XX:+UseSerialGC</code></td>
+<td>Tells HotSpot to use Serial.</td>
+</tr>
+<tr>
+<td>Parallel GC</td>
+<td><code>-XX:+UseParallelGC</code></td>
+<td>Tells HotSpot to use Parallel.</td>
+</tr>
+<tr>
+<td>G1 GC</td>
+<td><code>-XX:+UseG1GC</code></td>
+<td>Tells HotSpot to use G1, though this is the default in most cases.</td>
+</tr>
+<tr>
+<td>Z GC</td>
+<td><code>-XX:+UseZGC</code></td>
+<td>Tells HotSpot to use Z.</td>
+</tr>
+</tbody>
+</table>
+<p>I didn&rsquo;t actually re-run all the possible compiler and GC combinations possible (16 total). Instead, <strong>I assumed that there was no interaction between compilers and GC</strong> and that they could be tested independently. Why? I had played around with heap sizes and it seemed to have no effect on failure frequency. Generally, <strong>smaller heaps mean more frequent garbage collection</strong> and a higher likelihood of manifesting. Just to be clear, this was a gamble overall, as <strong>no interaction is not always guaranteed</strong> and if was wrong I&rsquo;d end up wasting a lot of time and resources.</p>
+<p>So, what did I actually do? <em>Did my gamble pay off?</em></p>
+<ol>
+<li>I picked a failing test and ran it interpreter-only, saw that it passed after 20 iterations. So it&rsquo;s probably a compiler issue.</li>
+<li>Since I know the interpreter works, I skipped <code>-Xcomp</code> and just added <code>-XX:TieredStopAtLevel=1</code> for trivial C1 compilation. This meant that my code would get interpreted until HotSpot decided some trivial methods would get compiled. This passed 20 iterations too.</li>
+<li>At this point I could have tried full C1 compilation, but I had a hunch it&rsquo;s probably C2. So I ran with <code>-XX:-TieredCompilation</code> and behold, the bug manifested!</li>
+<li>As a sanity check, I ran with with C2 compilation on Serial, Parallel, G1 and Z. This was to ensure that all GCs see test failures, which they did.</li>
+</ol>
+<p>I would say it paid off. I ran a few other test cases, they also confirmed that C2 compilation was the culprit. Using <code>-XX:-TieredCompilation</code> saw the bug manifest roughly 1/2 of the time. My colleagues suggested seeing if enabling Compact Object Headers with <code>-XX:+UseCompactObjectHeaders</code> makes a difference. And that was spot on, since I wasn&rsquo;t able to reproduce with it enabled. To answer the question of <strong>when we fail</strong>: when we use C2 without Compact Object Headers.</p>
+<p>So what does this tell us? Application logic failures with no VM crashes (via assertion failure or otherwise) indicates <strong>it&rsquo;s possibly (but not necessarily) at least one C2 miscompilation</strong> when disabling Compact Object Headers. That&rsquo;s pretty bad luck, since C2 is extremely complex and miscompilations are really hard to track down on top of that.</p>
+<h3 id="the-jtreg-saga-reproducing-is-hard">The <code>jtreg</code> Saga (Reproducing is Hard)<a href="#the-jtreg-saga-reproducing-is-hard" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>While I knew that the bug manifested when using C2 without Compact Object Headers, I still had no idea where the miscompilation happened. While there are many <code>if (UseCompactObjectHeaders)</code> in the HotSpot/C2 code, there are so many implicit interactions within the runtime one would need a lot of luck to find the bug that way.</p>
+<p>As a VM engineer, there are many tools in our toolbox to help with this uncertainty. For example, <a href="https://en.wikipedia.org/wiki/GNU_Debugger">GDB</a><sup id="fnref:14"><a href="#fn:14" class="footnote-ref" role="doc-noteref">14</a></sup> allows stepping through the code and inspecting state. <a href="https://rr-project.org"><code>rr</code></a> is great, because it captures program behavior once, and then one can deterministically step through (usually forwards, but also backwards). That&rsquo;s invaluable with intermittent failures.</p>
+<p>These tools take the <code>java</code> invocation as arguments. In OpenJDK, tests are run with the home-grown <a href="https://openjdk.org/jtreg/"><code>jtreg</code></a> framework, and invoked through <code>make test</code>, which in turn creates a <code>jtreg</code> Java process. When a test fails, it gives a &ldquo;re-run command&rdquo; which allows the develper to run it via <code>java</code> directly. This command is highly complex, since the <code>jtreg</code> subprocess usually spawns a few of its own subprocesses and supports different <a href="https://openjdk.org/projects/code-tools/jtreg/intro.html">execution modes</a>. Furthermore, two of my three symptoms were TestNG harnesses, which added another level of complexity.</p>
+<p>Unfortunately, <strong>the bug never manifested via re-runs</strong>. I spent countless days trying, fiddling with the flags, to no avail. Without being able to observe failures directly (only via <code>make test</code>), debugging&rsquo;s difficulty is locked to hard mode. It seemed like I hit a dead end.</p>
+<h3 id="minimizing">Minimizing<a href="#minimizing" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>With no clear debugging entrypoint, my only hope was to minimize the test cases. That way, I would be able to use unorthodox methods like <code>printf</code> statements or adding <code>ShouldNotReachHere()</code> assertions. I picked <a href="https://github.com/openjdk/valhalla/blob/a687d94e6afcb5326f558f196dcefe2dbbc72b10/test/jdk/java/util/jar/JarFile/mrjar/MultiReleaseJarProperties.java"><code>java/util/jar/JarFile/mrjar/MultiReleaseJarProperties.java</code></a> as a starting point.</p>
+<p>I usually minimize in two steps:</p>
+<ol>
+<li>Remove half of the method calls. I add them back one by one if the test no longer fails/the bug no longer manifests.</li>
+<li>Once no more method calls can be removed, I inline the existing method calls, cleaning up/constant folding in the process. Go back to step 1 until nothing can be inlined further.</li>
+</ol>
+<p>There are tools that do minimization programatically. <a href="https://github.com/csmith-project/creduce"><code>creduce</code></a> is a good example and also works for Java. I reduced <code>MultiReleaseJarProperties.java</code> manually since it gave me a lot of exposure to Java libraries I hadn&rsquo;t used before. Plus, it&rsquo;s good practice.</p>
+<p>After many, many iterations, I couldn&rsquo;t inline any further since I hit the Java standard library. Unfortunately, <a href="https://gist.github.com/Arraying/f3b68f0c4c35f493acd7826840492116">the minimized test</a> was still more complex than I had hoped it would be. Therefore, <strong>another approach was necessary</strong>&hellip;</p>
+<h3 id="summary-3">Summary<a href="#summary-3" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>By trying a variety of HotSpot flags, I was able to narrow down the issue to a problem related to the C2 JIT-compiler with Compact Object Headers disabled. I managed to minimize a test case substantially, but could not narrow it down as much as I wanted to. I suspected that it is a miscompilation bug, which makes it very hard to track down.</p>
+<h2 id="act-iii-compilation-mining">Act III: Compilation Mining<a href="#act-iii-compilation-mining" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>When HotSpot JIT-compiles programs, there is a <em>lot</em> of machine code produced, not only for the application itself, but also for the Java launcher. It&rsquo;s just not possible (or, extremely time intensive) to individually investigate every single compilation.</p>
+<p>In my case, I couldn&rsquo;t minimize any further. So, I had to rely on automated techniques in order to try to localize where the bug was.</p>
+<h3 id="whats-compiled">What&rsquo;s Compiled?<a href="#whats-compiled" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>In order to find out which methods get compiled, one can use <code>-XX:+PrintCompilation</code>. This prints out a long list of compiled methods, for example<sup id="fnref:15"><a href="#fn:15" class="footnote-ref" role="doc-noteref">15</a></sup>:</p>
+<pre tabindex="0"><code>154    1     n       jdk.internal.misc.Unsafe::getReferenceVolatile (native)
+206    2     n       java.lang.Object::hashCode (native)
+207    3     n       java.lang.invoke.MethodHandle::linkToStatic(LLLLLLL)L (native)   (static)
+219    4             java.lang.Enum::ordinal (5 bytes)
+227    5     n       java.lang.System::arraycopy (native)   (static)
+...
+</code></pre><p>We&rsquo;re just interested in the method name in this case. For more information on what the different numbers and symbols mean, <a href="https://foxstephen.net/quick-ref-print-compilation">I recommend Stephen Fox&rsquo; blogpost</a>.</p>
+<p>In my case, there were ~400 compilations. Again, this would be insanely tedious to manually crawl. I needed to automate.</p>
+<h3 id="finding-the-culprits">Finding the Culprit(s)<a href="#finding-the-culprits" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>There are two ways one can try to automatically find the method(s) causing issues. Of course, they assume that sufficiently many iterations are performed for the bug to manifest.</p>
+<ol>
+<li>Go through every single method, and only compile that method. Every method that sees the bug manifest should be investigated further.</li>
+<li>Go through every single method, and exclude this method from compilation. Only investigate methods whose exclusion <em>did not</em> cease the bug from manifesting.</li>
+</ol>
+<p>I decided to go down the <strong>first route</strong>. The second route is <em>probably better</em> if there are interactions between methods that cause the issues. However, it takes longer to get to a result, so I decided to take a bet on the first method.</p>
+<p>So how does one actually control compilations? By using <code>-XX:CompileCommand</code><sup id="fnref:16"><a href="#fn:16" class="footnote-ref" role="doc-noteref">16</a></sup>. With this, I can specify if I <em>only</em> want to compile a specific method, or if I want to <em>exclude</em> another method. For example, <code>-XX:CompileCommand=compileonly,java.lang.Enum::ordinal</code> ensures that <strong>if HotSpot decides to compile</strong> <code>Enum::ordinal</code>, this is the only compiled method. Similarly, <code>-XX:CompileCommand=exclude,java.lang.Enum::ordinal</code> ensures that HotSpot will <strong>never compile it</strong>. Since we are only compiling with C2 (<code>-XX:-TieredCompilation</code> flag), these <code>CompileCommand</code>s control C2&rsquo;s behavior.</p>
+<p>Having gathered all compiled methods from <code>-XX:+PrintCompilation</code>, after preprocessing<sup id="fnref:17"><a href="#fn:17" class="footnote-ref" role="doc-noteref">17</a></sup>, I wrote a little script to automate the search process. The gist of the script is as follows:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// main(String[] args), while iterating through all methods:
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">String</span> <span class="n">flag</span> <span class="o">=</span> <span class="s">&#34;-XX:CompileCommand=compileonly,&#34;</span> <span class="o">+</span> <span class="n">method</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">(!</span><span class="n">run</span><span class="o">(</span><span class="n">flag</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">System</span><span class="o">.</span><span class="na">err</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Failure for &#34;</span> <span class="o">+</span> <span class="n">method</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// run(String otherFlags):
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">ProcessBuilder</span> <span class="n">pb</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ProcessBuilder</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;bash&#34;</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;-c&#34;</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;cd ~/valhalla &amp;&amp; make test TEST=\&#34;&#34;</span> <span class="o">+</span> <span class="n">TEST</span> <span class="o">+</span> <span class="s">&#34;\&#34; JTREG=\&#34;REPEAT_COUNT=5;VM_OPTIONS=-XX:-TieredCompilation -XX:+PrintCompilation &#34;</span> <span class="o">+</span> <span class="n">otherFlags</span> <span class="o">+</span> <span class="s">&#34;\&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">);</span>
+</span></span></code></pre></div><p>Delightfully, it produced a result:</p>
+<pre tabindex="0"><code>Failure for java.util.concurrent.ConcurrentHashMap::get
+</code></pre><p>So, something related to <code>ConcurrentHashMap::get</code> was causing the problem! At this point, it&rsquo;s <strong>still unclear if there is a miscompilation</strong> or the bug simply manifests in relation to this compiled method. But at least, I now knew a little bit more about where to look.</p>
+<h3 id="inlining">Inlining<a href="#inlining" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>Remember when I said <code>-XX:CompileCommand=compileonly</code> ensures that only a specific method gets compiled? In reality, it also <strong>includes inlined methods</strong><sup id="fnref:18"><a href="#fn:18" class="footnote-ref" role="doc-noteref">18</a></sup> if C2 decides they&rsquo;re worth inlining. The <code>-XX:+PrintInlining</code> flag will show what&rsquo;s being inlined. Warning: it&rsquo;s often so verbose that <code>make test</code> will truncate the output.</p>
+<p>Taking a look at <code>-XX:CompileCommand=compileonly,java.util.concurrent.ConcurrentHashMap::get -XX:+PrintInlining</code>, it shows the following:</p>
+<pre tabindex="0"><code>@ 1   java.lang.Object::hashCode (0 bytes)   (intrinsic, virtual)
+@ 4   java.util.concurrent.ConcurrentHashMap::spread (10 bytes)   inline (hot)
+@ 34   java.util.concurrent.ConcurrentHashMap::tabAt (21 bytes)   inline (hot)
+  @ 14   jdk.internal.misc.Unsafe::getReferenceAcquire (7 bytes)   (intrinsic)
+@ 67   java.util.Objects::equals (51 bytes)   force inline by annotation
+  @ 0   jdk.internal.misc.PreviewFeatures::isEnabled (4 bytes)   inline (hot)
+  @ 39   java.lang.Object::equals (11 bytes)   failed to inline: virtual call
+@ 137   java.util.Objects::equals (51 bytes)   force inline by annotation
+  @ 0   jdk.internal.misc.PreviewFeatures::isEnabled (4 bytes)   inline (hot)
+  @ 39   java.lang.Object::equals (11 bytes)   failed to inline: virtual call
+</code></pre><p>Now, I could disable each method one by one and see if any of them caused the bug to cease. For example disabling <code>ConcurrentHashMap::spread</code>: <code>-XX:CompileCommand=dontinline,java.util.concurrent.ConcurrentHashMap::spread</code>. The only exceptions are intrinsic methods, who remain unaffected by the flag and will be inlined.</p>
+<p>When I disabled every inlined method and the error still persisted, it meant that there were two options. First, the bug could be in <code>ConcurrentHashMap::get</code> itself. Or, the bug is in an intrinsic. Taking a look at <a href="https://github.com/openjdk/valhalla/blob/a687d94e6afcb5326f558f196dcefe2dbbc72b10/src/java.base/share/classes/java/util/concurrent/ConcurrentHashMap.java#L950">the source code for <code>ConcurrentHashMap::get</code></a>, it seemed unlikely that it would be there. The code uses very common programming constructs that would have most likely caused failures in other tests too.</p>
+<p>My hunch was that the bug was in the <code>Object::hashCode</code> intrinsic, simply because Valhalla does things with <code>hashCode</code>. And indeed, turning off the intrinsic by <a href="https://github.com/openjdk/valhalla/blob/a687d94e6afcb5326f558f196dcefe2dbbc72b10/src/hotspot/share/opto/library_call.cpp#L5300C36-L5300C44">returning <code>false</code></a> in the function fixed the issue.</p>
+<p>It seemed the issue was in the <code>Object::hashCode</code> intrinsic. However, at this point it was still not possible to definitely pinpoint that it was a miscompilation, but signs did point towards one. In any case, I was now at the point where the compilation was sufficiently small to bring out the big guns.</p>
+<h3 id="summary-4">Summary<a href="#summary-4" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>By individually compiling methods that were C2-compiled during a run where the bug manifested, I found that <code>ConcurrentHashMap::get</code> was the suspect. Upon inspecting the inlining, the C2 intrinsic for <code>Object::hashCode</code> was determined to be the culprit.</p>
+<h2 id="act-iv-the-bug">Act IV: The Bug<a href="#act-iv-the-bug" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The intrinsic source code is quite long. My OOP professor would have said it &ldquo;has a high cyclomatic complexity.&rdquo; I added a few print statements to each branch to figure out which path we were taking. Recall that I could not reproduce this bug via <code>gdb</code>, hence print statements were my only available tool.</p>
+<p>While doing that, I noticed the <a href="https://github.com/openjdk/valhalla/blob/a687d94e6afcb5326f558f196dcefe2dbbc72b10/src/hotspot/share/opto/library_call.cpp#L5365"><code>if (!UseObjectMonitorTable)</code></a> conditional. Suddenly, I had a theory! The bug did not manifest with Compact Object Headers. Could it be that using Compact Object Headers sets this flag? I could easily verify this:</p>
+<ul>
+<li><code>java -XX:+UseCompactObjectHeaders -XX:+PrintFlagsFinal -version | grep UseObjectMonitorTable</code> showed it was enabled.</li>
+<li><code>java -XX:-UseCompactObjectHeaders -XX:+PrintFlagsFinal -version | grep UseObjectMonitorTable</code> showed it was disabled.</li>
+</ul>
+<p>So, Compact Object Headers sets this flag and does <em>not</em> take the branch. <strong>It&rsquo;s likely an issue related to something in that branch</strong>. The branch adds a bunch of extra instructions, but nothing immediately stands out.</p>
+<h3 id="c2-compilation-graph">C2 Compilation Graph<a href="#c2-compilation-graph" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>I took a look at the difference in generated machine code. <a href="https://openjdk.org/groups/build/doc/building.html">Configuring</a> the HotSpot source code using the <code>--enable-hsdis-bundling --with-hsdis=llvm</code> flags<sup id="fnref:19"><a href="#fn:19" class="footnote-ref" role="doc-noteref">19</a></sup> enables machine code inspection. That let me run with the <code>-XX:CompileCommand=print,java.util.concurrent.ConcurrentHashMap::get</code> which prints the disassembled machine code of the whole method, including inlined methods and intrinsics. As I already saw from the source code, I saw extra instructions with Compact Object Headers / <code>UseObjectMonitorTable</code> disabled.</p>
+<p>Instead, I had to think at a higher level. C2, like many compilers, optimizes on an intermediate representation (IR). Programs get transformed into an IR that is not Java bytecode, but not yet machine code. C2&rsquo;s IR is a big graph, called Sea of Nodes<sup id="fnref:20"><a href="#fn:20" class="footnote-ref" role="doc-noteref">20</a></sup>. It performs optimizations by doing transformation and analysis passes over the IR. Using the <a href="https://github.com/openjdk/jdk/tree/master/src/utils/IdealGraphVisualizer">Ideal Graph Visualizer</a> I was able to take a diff between the graph of <code>ConcurrentHashMap::get</code> with <code>UseObjectMonitorTable</code> enbled and disabled, for the first and last optimization passes. For context, this method produced about 400 nodes and 1000+ edges, which is why I don&rsquo;t have a screenshot. The <strong>diff yielded no interesting changes</strong> unfortunately. While some nodes had differences, these could be attributed to different addresses or branch probabilities.</p>
+<p><strong>Was this not a miscompilation after all?</strong> Was the actual issue deeper in the runtime and the bug just mainfested in this compilation unit? While I learned which feature flag was responsible, it still didn&rsquo;t explain what was going on.</p>
+<h3 id="the-bitmask">The Bitmask<a href="#the-bitmask" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>I needed to understand what <code>UseObjectMonitorTable</code> actually does. Crudely put, an object monitor is used for locking and sychronization. The <a href="https://wiki.openjdk.org/display/HotSpot/Synchronization+Using+The+ObjectMonitorTable">wiki page</a> based on the <a href="https://github.com/openjdk/jdk/pull/20067">pull request</a> was a helpful starting point. To understand my bug only the first line of the PR is relevant (inflating is a state of the <code>markWord</code>):</p>
+<blockquote>
+<p>When inflating a monitor the ObjectMonitor* is written directly over the markWord and any overwritten data is displaced into a displaced markWord.</p>
+</blockquote>
+<p>I asked my GC colleagues to see if they had an idea, and we collaborated on the last step of finding the bug. We determined how to attach to the process since the bug would only manifest through <code>make test</code>. It turns out, the following combination worked quite well:</p>
+<ul>
+<li>Running the test with <code>-XX:+ShowMessageBoxOnError</code> and <code>-XX:AbortVMOnException=java.lang.AssertionError</code> set.</li>
+<li>Waiting for the test to hang, most likely indicating a failure. <code>ShowMessageBoxOnError</code> expects input via standard input, but since the <code>jtreg</code> infrastructure wraps everything, input cannot be given. Hence, it hangs until the test times out.</li>
+<li>Using <a href="https://docs.oracle.com/en/java/javase/25/docs/specs/man/jps.html"><code>jps</code></a> to get a list of Java processes.</li>
+<li>Connecting the <code>lldb</code> debugger via <code>lldb -p &lt;PID&gt;</code> and check the threads using <code>thread backtrace all</code> to see which of the processes had the message box showing. This would be the failed process.</li>
+</ul>
+<p>In the end though, attaching didn&rsquo;t help much. It did indicate that some threads were waiting, with a lightweight locking mode (what this means is irrelevant), which made us look at the <a href="https://github.com/openjdk/valhalla/blob/a687d94e6afcb5326f558f196dcefe2dbbc72b10/src/hotspot/share/opto/library_call.cpp#L5365">intrinsic</a> again in detail. Specifically, the <code>LM_LIGHTWEIGHT</code>. Note that the misaligned comment is a faithful reproduction of the source code.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  <span class="c1">// Test the header to see if it is safe to read w.r.t. locking.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// This also serves as guard against inline types
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">Node</span> <span class="o">*</span><span class="n">lock_mask</span>      <span class="o">=</span> <span class="n">_gvn</span><span class="p">.</span><span class="n">MakeConX</span><span class="p">(</span><span class="n">markWord</span><span class="o">::</span><span class="n">inline_type_mask_in_place</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Node</span> <span class="o">*</span><span class="n">lmasked_header</span> <span class="o">=</span> <span class="n">_gvn</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="k">new</span> <span class="n">AndXNode</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">lock_mask</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">LockingMode</span> <span class="o">==</span> <span class="n">LM_LIGHTWEIGHT</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Node</span> <span class="o">*</span><span class="n">monitor_val</span>   <span class="o">=</span> <span class="n">_gvn</span><span class="p">.</span><span class="n">MakeConX</span><span class="p">(</span><span class="n">markWord</span><span class="o">::</span><span class="n">monitor_value</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Node</span> <span class="o">*</span><span class="n">chk_monitor</span>   <span class="o">=</span> <span class="n">_gvn</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="k">new</span> <span class="n">CmpXNode</span><span class="p">(</span><span class="n">lmasked_header</span><span class="p">,</span> <span class="n">monitor_val</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Node</span> <span class="o">*</span><span class="n">test_monitor</span>  <span class="o">=</span> <span class="n">_gvn</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="k">new</span> <span class="n">BoolNode</span><span class="p">(</span><span class="n">chk_monitor</span><span class="p">,</span> <span class="n">BoolTest</span><span class="o">::</span><span class="n">eq</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">generate_slow_guard</span><span class="p">(</span><span class="n">test_monitor</span><span class="p">,</span> <span class="n">slow_region</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+</span></span></code></pre></div><p>Conceptually, this code <em>generates machine code</em> that does the following:</p>
+<ol>
+<li>It defines a constant represented by the bitmask <code>markWord::inline_type_mask_in_place</code>. This bitmask is the logical OR of the value object bit and the two lock bits.</li>
+<li>It performs a logical AND on the object header (where the <code>markWord</code> resides) and the locking mask to create a masked header.</li>
+<li>It defines another constant representing the monitor value (<code>0b10</code>).</li>
+<li>It compares the masked header with the monitor value. If it&rsquo;s equal, it takes a slow path needed for locking (the details of which are irrelevant).</li>
+</ol>
+<p><strong>The bug is in the first step</strong>. The following diagram represents the old and new bitmasks for the eleven least-significant bits:</p>
+<pre tabindex="0"><code>    7   3  0
+ VVVAAAAVSTT  &lt;- Before my change
+        ^-^^---- 1011 bitmask
+ VVVVAAAASTT  &lt;- After my change
+    ^-----^^---- 10000011 bitmask
+</code></pre><p>When an object monitor is inflating, the <code>markWord</code> is replaced by the object monitor&rsquo;s native address (sans least-significant lock bits). Let&rsquo;s denote this native address as <code>P..PP</code>. The <code>markWord</code> then becomes:</p>
+<pre tabindex="0"><code>    7   3  0
+ PPPPPPPPPTT  &lt;- Before my change
+        ^-^^---- 1011 bitmask
+ PPPPPPPPPTT  &lt;- After my change
+    ^-----^^---- 10000011 bitmask
+</code></pre><p>So we are doing a bitmask on a pointer instead of metadata! If we got unlucky and bit number 3 or 7 (depending on before/after my change) were set to 1, the mask would include an insignificant bit. In that case, comparing to <code>0b10</code> (the monitor value) would yield that it is not equal, and the slow path would not be taken, even though it should have been! We should just check the lock bits instead. <strong>It&rsquo;s a miscompilation after all!</strong></p>
+<p><strong>Setting the mask to <code>markWord::lock_mask_in_place</code></strong> seemed to address Symptom B (<code>java.lang.AssertionError</code>) and Symptom C (<code>java.lang.NoClassDefFoundError</code>). Recall that Symptom A (failed unit tests) had already been fixed. Finally, running it through the usual <a href="https://openjdk.org/groups/build/doc/testing.html">tiered testing</a> showed no regressions compared to before my changes.</p>
+<h3 id="summary-5">Summary<a href="#summary-5" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>An incorrect bitmask was checking native pointer bits instead of metadata bits when <code>UseObjectMonitorTable</code> was disabled. If a bit in the pointer was set to 1, the required slow path is not taken. Compact Object Headers was setting the <code>UseObjectMonitorTable</code> flag to <code>true</code>, which is why the issue did not manifest here.</p>
+<h2 id="act-v-post-mortem">Act V: Post Mortem<a href="#act-v-post-mortem" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>One big question is why did this not affect the virtual machine before my change? This can be explained by the fact that 64-bit native memory pointers, obtained via <code>malloc</code>, are 16-byte aligned. They will have four trailing zeroes, of which <em>the latter two may be overriden by the locking metadata</em>. Considering the diagram:</p>
+<pre tabindex="0"><code>    7   3  0
+ PPPPPPP00??  &lt;- Before my change
+        ^-^^---- 1011 bitmask
+ PPPPPPP00??  &lt;- After my change
+    ^-----^^---- 10000011 bitmask
+</code></pre><p>It shows that the bit in position 3 was always zero. Therefore, the value object bit in the bit mask would AND with a zero, which produces a zero. That&rsquo;s why the bug only manifested after moving the value object bit.</p>
+<p>I have no idea why this caused the symptoms that it did. A miscompilation means the program can behave arbitrarily, and that it did. While I acknowledge this might be an unsatisfying ending, it&rsquo;s simply not the best use of my time to chase the bug to its symptoms. I&rsquo;m more than happy to guide anyone who is interested in doing so though.</p>
+<h3 id="summary-6">Summary<a href="#summary-6" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>The bug did not manifest before I changed the value object bit location because we got lucky with native memory alignment. The bit that the faulty bitmask was checking was always zero. I have no idea why objects turned null or why classes could not be found.</p>
+<h2 id="closing-thoughts--takeaways">Closing Thoughts &amp; Takeaways<a href="#closing-thoughts--takeaways" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The takeaways I would like to highlight are as follows:</p>
+<ul>
+<li><strong>Have a strong methodology and challenge assumptions.</strong> With a large codebase like HotSpot, reasoning is the required to (sanely) make progress in debugging. Derive a methodology appropriate for the bug you are facing.</li>
+<li><strong>Ask the right questions at the right time.</strong> Know what/when to ask and whom to ask. There&rsquo;s no shame in asking for help, and it&rsquo;s often a learning experience for both parties. If I spend a day without progress, I usually take that as an indicator to seek external help and/or input.</li>
+<li><strong>Use your tools!</strong> This may be ironic since I wasn&rsquo;t able to utilize <code>lldb</code> successfully, but debugging tools are incredibly useful. At least get familiar with the basics, they&rsquo;re not as hard and scary as they seem.</li>
+</ul>
+<p>I think I can attribute my success in this instance to asking the right questions to the right people. I&rsquo;m not great at debugging, but a lot of people around me are and were glad to help. Thank you to all my colleagues for helping me out when I was stuck, and answering my many questions. I&rsquo;m extremely grateful to be able to learn from you.</p>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p>Compact Object Headers was made a production feature in JDK 25 via <a href="https://openjdk.org/jeps/519">JEP519</a>, though it remains disabled by default at the time of writing.&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2">
+<p>The actual layout of the <code>markWord</code> follows the Compact Object Headers format regardless of whether they are enabled. If the feature is disabled, the class pointer will just be delegated to the class word. You can <a href="https://github.com/openjdk/jdk/blob/5251405ce9ab1cbd84b798a538cb3865ea4675e9/src/hotspot/share/oops/markWord.hpp">find the layout in the source code</a>.&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3">
+<p>More detail on the locking modes can be found in the experimental <a href="https://openjdk.org/jeps/450">Compact Object Headers JEP</a>.&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:4">
+<p>Brian Goetz illustrates this nicely in his <a href="https://www.youtube.com/watch?v=IF9l8fYfSnI">JVMLS Valhalla update</a> talk.&#160;<a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:5">
+<p>Instead of passing references to value objects, their fields can end up as local fields or in registers for better performance.&#160;<a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:6">
+<p>Internally, this is called the &ldquo;inline type bit,&rdquo; since value classes can be seen as inline types. However, this terminology is confusing, so I&rsquo;m going to call it the value object bit in this post.&#160;<a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:7">
+<p>Estimate via <code>find src/hotspot -type f | xargs wc -l</code>. Much of this is probably copyright headers.&#160;<a href="#fnref:7" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:8">
+<p>These are different than the assertion errors in HotSpot and reside in the application space.&#160;<a href="#fnref:8" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:9">
+<p>A miscompilation happens when a compiler emits wrong code. Ideally, this is garbage and we crash upon execution, but in unfortunate cases it can introduce extremely subtle bugs into programs.&#160;<a href="#fnref:9" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:10">
+<p>This is one of the best developer-oriented overviews of tiered compilation I&rsquo;ve seen. Big kudos. Even though there are some things I would nitpick (e.g. performance is rarely, if ever, monotonically increasing), I still find myself coming back to this for its succint high-level explanation.&#160;<a href="#fnref:10" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:11">
+<p>I really like the overview <a href="https://abiasforaction.net/understanding-jvm-garbage-collection-part-6-serial-and-parallel-collector/">this blogpost</a> by Akhil Mehra gives.*&#160;<a href="#fnref:11" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:12">
+<p><a href="https://docs.oracle.com/en/java/javase/25/gctuning/garbage-first-g1-garbage-collector1.html">Oracle&rsquo;s explanation</a> of G1 is a fantastic source of truth, but quite information-dense and I found it challenging the first few reads. In that sense <a href="https://abiasforaction.net/understanding-jvm-garbage-collection-part-9-garbage-first-g1-garbage-collector-gc/">Akhil Mehra&rsquo;s G1 post</a> is a strong alternative.&#160;<a href="#fnref:12" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:13">
+<p>ZGC is the coolest GC in my opinion, but quite advanced. <a href="https://urn.kb.se/resolve?urn=urn:nbn:se:uu:diva-539617">This master thesis</a> explains the surface level concepts quite well.&#160;<a href="#fnref:13" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:14">
+<p>I&rsquo;m on macOS so I use <a href="https://lldb.llvm.org">LLDB</a> instead, but it&rsquo;s more or less the same thing.&#160;<a href="#fnref:14" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:15">
+<p>Note that compilation levels are <em>not</em> shown in this case, as I am only using the C2 compiler with <code>-XX:-TieredCompilation</code>.&#160;<a href="#fnref:15" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:16">
+<p>A decently old but still useful blogpost on the CompileCommand option is that of <a href="https://jpbempel.github.io/2016/03/16/compilecommand-jvm-option.html">Jean-Philippe Bempel</a>.&#160;<a href="#fnref:16" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:17">
+<p>I stripped everything before the method name so I could easily <code>String#split</code> the line and take the first string. I also removed the <code>&lt;init&gt;</code> and <code>(native)</code> methods as these cannot be targetted by <code>-XX:CompileCommand</code> directly.&#160;<a href="#fnref:17" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:18">
+<p><a href="https://en.wikipedia.org/wiki/Inline_expansion">Inlining</a> is an optimization method that replaces function calls with their body. This saves function call overhead, but more importantly, transforms code in such a way that it may be eligible for other optimizations.&#160;<a href="#fnref:18" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:19">
+<p>This requires a LLVM toolchain, but it&rsquo;s also possible to achieve using <code>gcc</code>/<code>binutils</code>.&#160;<a href="#fnref:19" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:20">
+<p>A good academic introduction is in <a href="https://urn.kb.se/resolve?urn=urn:nbn:se:kth:diva-368250">Tianxing Wu&rsquo;s master thesis</a>.&#160;<a href="#fnref:20" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+    <div class="footer__inner">
+        <div class="copyright copyright--user">
+            <div>© 2025 Paul Hübner. All opinons are my own, and may not reflect Oracle's.</div>
+            <div>
+                Themed using <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Terminal.css</a> by <a href="https://github.com/panr" target="_blank">panr</a>.
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

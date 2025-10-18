@@ -7,20 +7,20 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <copyright>© 2025 Paul Hübner</copyright>
-    <lastBuildDate>Wed, 27 Aug 2025 18:00:00 +0100</lastBuildDate><atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 18 Oct 2025 12:00:00 +0200</lastBuildDate><atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>gc</title>
-      <link>/tags/gc/</link>
-      <pubDate>Wed, 27 Aug 2025 18:00:00 +0100</pubDate>
+      <title>compiler</title>
+      <link>/tags/compiler/</link>
+      <pubDate>Sat, 18 Oct 2025 12:00:00 +0200</pubDate>
       
-      <guid>/tags/gc/</guid>
+      <guid>/tags/compiler/</guid>
       <description></description>
     </item>
     
     <item>
       <title>java</title>
       <link>/tags/java/</link>
-      <pubDate>Wed, 27 Aug 2025 18:00:00 +0100</pubDate>
+      <pubDate>Sat, 18 Oct 2025 12:00:00 +0200</pubDate>
       
       <guid>/tags/java/</guid>
       <description></description>
@@ -29,9 +29,27 @@
     <item>
       <title>jvm</title>
       <link>/tags/jvm/</link>
-      <pubDate>Wed, 27 Aug 2025 18:00:00 +0100</pubDate>
+      <pubDate>Sat, 18 Oct 2025 12:00:00 +0200</pubDate>
       
       <guid>/tags/jvm/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>valhalla</title>
+      <link>/tags/valhalla/</link>
+      <pubDate>Sat, 18 Oct 2025 12:00:00 +0200</pubDate>
+      
+      <guid>/tags/valhalla/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>gc</title>
+      <link>/tags/gc/</link>
+      <pubDate>Wed, 27 Aug 2025 18:00:00 +0100</pubDate>
+      
+      <guid>/tags/gc/</guid>
       <description></description>
     </item>
     

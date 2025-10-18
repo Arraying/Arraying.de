@@ -7,7 +7,16 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <copyright>© 2025 Paul Hübner</copyright>
-    <lastBuildDate>Wed, 27 Aug 2025 18:00:00 +0100</lastBuildDate><atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 18 Oct 2025 12:00:00 +0200</lastBuildDate><atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Help, My Java Object Vanished (and the GC is Not at Fault)</title>
+      <link>/posts/markword/</link>
+      <pubDate>Sat, 18 Oct 2025 12:00:00 +0200</pubDate>
+      
+      <guid>/posts/markword/</guid>
+      <description>&lt;p&gt;Today I&amp;rsquo;m going to talk about a recent journey as a HotSpot Java Virtual Machine developer working on the OpenJDK project. While running tests for a new feature, I realized my Java objects and classes were arbitrarily disappearing! What followed was probably the most interesting debugging and fixing experience of my life (so far), which I wanted to share with the world.&lt;/p&gt;</description>
+    </item>
+    
     <item>
       <title>GC-Agnostic Load Barriers</title>
       <link>/posts/thesis/</link>
