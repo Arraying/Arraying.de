@@ -13,7 +13,7 @@ pagination.pagerSize = 5
   centerTheme = true
   autoCover = true
   showLastUpdated = false
-  readingTime = true
+  readingTime = false
   # dateFormat = "2006-01-02 3:04:06 PM MST"
 
 [languages]
