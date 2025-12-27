@@ -136,6 +136,10 @@
           <li><a href="/publications">Publications</a></li>
         
       
+        
+          <li><a href="/index.xml">RSS</a></li>
+        
+      
       
     </ul>
   </li>
@@ -163,6 +167,10 @@
       
         
           <li><a href="/publications" >Publications</a></li>
+        
+      
+        
+          <li><a href="/index.xml" >RSS</a></li>
         
       
       
@@ -229,7 +237,7 @@
  ^^^^------------ Valhalla-reserved bits
 </code></pre><p>Let&rsquo;s <em>briefly</em> go through what these mean:</p>
 <ul>
-<li><code>TT</code> represents the two tag bits, and they are used for locking. I&rsquo;m not going to go into monitoring in depth. Briefly, <code>01</code> indicates the object is not locked, whereas <code>00</code> and <code>10</code> indicate lightweight<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup> and monitor<sup id="fnref1:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup> locking, respectfully.</li>
+<li><code>TT</code> represents the two tag bits, and they are used for locking. I&rsquo;m not going to go into monitoring in depth. Briefly, <code>01</code> indicates the object is not locked, whereas <code>00</code> and <code>10</code> indicate lightweight<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup> and monitor<sup id="fnref1:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup> locking, respectively.</li>
 <li><code>S</code> represents the self-forwarding bit. It is used by some garbage collectors, but the details are irrelevant.</li>
 <li><code>AAAA</code> represents the age bits. Generational garbage collectors use these bits to track object tenuring.</li>
 <li><code>VVVV</code> represents four distinct Valhalla-reserved bits (and also called <code>unused_gap_bits</code> in the implementation). More on them later.</li>
@@ -311,7 +319,7 @@
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  <span class="k">static</span> <span class="k">const</span> <span class="n">uintptr_t</span> <span class="n">static_prototype_mask</span>    <span class="o">=</span> <span class="p">...;</span>
 </span></span><span class="line"><span class="cl">  <span class="k">static</span> <span class="k">const</span> <span class="n">uintptr_t</span> <span class="n">static_prototype_mask_in_place</span> <span class="o">=</span> <span class="n">static_prototype_mask</span> <span class="o">&lt;&lt;</span> <span class="n">lock_bits</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="k">static</span> <span class="k">const</span> <span class="n">uintptr_t</span> <span class="n">static_prototype_value_max</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">age_shift</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
-</span></span></code></pre></div><p>It turns out, <code>static_prototype_mask</code> and <code>static_prototype_mask_in_place</code> are unused. The <code>static_prototype_max_value</code> in question is just all bits up to the age bits set to 1. Recall that the legacy bits are <code>AAAAVSLL</code>. This would generate a mask of <code>1111</code>. Since I moved the position of the age bits, this mask changed. Maybe that&rsquo;s why the test fails?</p>
+</span></span></code></pre></div><p>It turns out, <code>static_prototype_mask</code> and <code>static_prototype_mask_in_place</code> are unused. The <code>static_prototype_max_value</code> in question is just all bits up to the age bits set to 1. Recall that the pre-JEP450 Valhalla bits are <code>AAAAVSTT</code>. This would generate a mask of <code>1111</code>. Since I moved the position of the age bits, this mask changed. Maybe that&rsquo;s why the test fails?</p>
 <p>Why do we do this? The documentation says the following about static prototypes:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">//  Static types bits are recorded in the &#34;klass-&gt;prototype_header()&#34;, displaced
 </span></span></span><span class="line"><span class="cl"><span class="c1">//  mark should simply use the prototype header as &#34;slow path&#34;, rather chasing
@@ -548,7 +556,7 @@
 <h3 id="summary-5">Summary<a href="#summary-5" class="hanchor" ariaLabel="Anchor">#</a> </h3>
 <p>An incorrect bitmask was checking native pointer bits instead of metadata bits when <code>UseObjectMonitorTable</code> was disabled. If a bit in the pointer was set to 1, the required slow path is not taken. Compact Object Headers was setting the <code>UseObjectMonitorTable</code> flag to <code>true</code>, which is why the issue did not manifest here.</p>
 <h2 id="act-v-post-mortem">Act V: Post Mortem<a href="#act-v-post-mortem" class="hanchor" ariaLabel="Anchor">#</a> </h2>
-<p>One big question is why did this not affect the virtual machine before my change? This can be explained by the fact that 64-bit native memory pointers, obtained via <code>malloc</code>, are 16-byte aligned. They will have four trailing zeroes, of which <em>the latter two may be overriden by the locking metadata</em>. Considering the diagram:</p>
+<p>One big question is why did this not affect the virtual machine before my change? This can be explained by the fact that 64-bit native memory pointers, obtained via <code>malloc</code>, are 16-byte<sup id="fnref:21"><a href="#fn:21" class="footnote-ref" role="doc-noteref">21</a></sup> aligned. They will have four trailing zeroes, of which <em>the latter two may be overriden by the locking metadata</em>. Considering the diagram:</p>
 <pre tabindex="0"><code>    7   3  0
  PPPPPPP00??  &lt;- Before my change
         ^-^^---- 1011 bitmask
@@ -566,6 +574,13 @@
 <li><strong>Use your tools!</strong> This may be ironic since I wasn&rsquo;t able to utilize <code>lldb</code> successfully, but debugging tools are incredibly useful. At least get familiar with the basics, they&rsquo;re not as hard and scary as they seem.</li>
 </ul>
 <p>I think I can attribute my success in this instance to asking the right questions to the right people. I&rsquo;m not great at debugging, but a lot of people around me are and were glad to help. Thank you to all my colleagues for helping me out when I was stuck, and answering my many questions. I&rsquo;m extremely grateful to be able to learn from you.</p>
+<hr>
+<h3 id="edited-2025-12-27">Edited 2025-12-27<a href="#edited-2025-12-27" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<ul>
+<li>Pointed out that <code>malloc</code> isn&rsquo;t guaranteed 16-byte aligned on all platforms.</li>
+<li>Various language fixes.</li>
+<li>Updated an <code>AAAAVSLL</code> to <code>AAAAVSTT</code> to be consistent with prior notation.</li>
+</ul>
 <div class="footnotes" role="doc-endnotes">
 <hr>
 <ol>
@@ -629,6 +644,9 @@
 <li id="fn:20">
 <p>A good academic introduction is in <a href="https://urn.kb.se/resolve?urn=urn:nbn:se:kth:diva-368250">Tianxing Wu&rsquo;s master thesis</a>.&#160;<a href="#fnref:20" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
+<li id="fn:21">
+<p>After publishing this post, I was <a href="https://old.reddit.com/r/java/comments/1pa5xiu/help_my_java_object_vanished_and_the_gc_is_not_at/nrizt3h/">made aware</a> of the fact that <a href="https://github.com/openjdk/jdk/pull/28235">this is not a valid assumption for all platforms</a>.&#160;<a href="#fnref:21" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
 </ol>
 </div>
       </div></div>
@@ -647,7 +665,7 @@
     <footer class="footer">
     <div class="footer__inner">
         <div class="copyright copyright--user">
-            <div>© 2025 Paul Hübner. All opinons are my own, and may not reflect Oracle's.</div>
+            <div>© 2025 Paul Hübner. All opinions are my own, and may not reflect Oracle's.</div>
             <div>
                 Themed using <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Terminal.css</a> by <a href="https://github.com/panr" target="_blank">panr</a>.
             </div>

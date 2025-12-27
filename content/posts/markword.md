@@ -53,7 +53,7 @@ So, what sort of information is in the mark word? JEP 450 does a good job at [ex
 ```
 
 Let's *briefly* go through what these mean:
-* `TT` represents the two tag bits, and they are used for locking. I'm not going to go into monitoring in depth. Briefly, `01` indicates the object is not locked, whereas `00` and `10` indicate lightweight[^3] and monitor[^3] locking, respectfully.
+* `TT` represents the two tag bits, and they are used for locking. I'm not going to go into monitoring in depth. Briefly, `01` indicates the object is not locked, whereas `00` and `10` indicate lightweight[^3] and monitor[^3] locking, respectively.
 * `S` represents the self-forwarding bit. It is used by some garbage collectors, but the details are irrelevant.
 * `AAAA` represents the age bits. Generational garbage collectors use these bits to track object tenuring.
 * `VVVV` represents four distinct Valhalla-reserved bits (and also called `unused_gap_bits` in the implementation). More on them later.
@@ -187,7 +187,7 @@ Looking in the `markWord.hpp`, there were a few constants related to `static_pro
   static const uintptr_t static_prototype_mask_in_place = static_prototype_mask << lock_bits;
   static const uintptr_t static_prototype_value_max = (1 << age_shift) - 1;
 ```
-It turns out, `static_prototype_mask` and `static_prototype_mask_in_place` are unused. The `static_prototype_max_value` in question is just all bits up to the age bits set to 1. Recall that the legacy bits are `AAAAVSLL`. This would generate a mask of `1111`. Since I moved the position of the age bits, this mask changed. Maybe that's why the test fails?
+It turns out, `static_prototype_mask` and `static_prototype_mask_in_place` are unused. The `static_prototype_max_value` in question is just all bits up to the age bits set to 1. Recall that the pre-JEP450 Valhalla bits are `AAAAVSTT`. This would generate a mask of `1111`. Since I moved the position of the age bits, this mask changed. Maybe that's why the test fails?
 
 Why do we do this? The documentation says the following about static prototypes:
 ```cpp
@@ -486,7 +486,7 @@ An incorrect bitmask was checking native pointer bits instead of metadata bits w
 
 ## Act V: Post Mortem
 
-One big question is why did this not affect the virtual machine before my change? This can be explained by the fact that 64-bit native memory pointers, obtained via `malloc`, are 16-byte aligned. They will have four trailing zeroes, of which *the latter two may be overriden by the locking metadata*. Considering the diagram:
+One big question is why did this not affect the virtual machine before my change? This can be explained by the fact that 64-bit native memory pointers, obtained via `malloc`, are 16-byte[^21] aligned. They will have four trailing zeroes, of which *the latter two may be overriden by the locking metadata*. Considering the diagram:
 ```
     7   3  0
  PPPPPPP00??  <- Before my change
@@ -494,6 +494,8 @@ One big question is why did this not affect the virtual machine before my change
  PPPPPPP00??  <- After my change
     ^-----^^---- 10000011 bitmask
 ```
+
+[^21]: After publishing this post, I was [made aware](https://old.reddit.com/r/java/comments/1pa5xiu/help_my_java_object_vanished_and_the_gc_is_not_at/nrizt3h/) of the fact that [this is not a valid assumption for all platforms](https://github.com/openjdk/jdk/pull/28235).
 
 It shows that the bit in position 3 was always zero. Therefore, the value object bit in the bit mask would AND with a zero, which produces a zero. That's why the bug only manifested after moving the value object bit.
 
@@ -511,3 +513,11 @@ The takeaways I would like to highlight are as follows:
 - **Use your tools!** This may be ironic since I wasn't able to utilize `lldb` successfully, but debugging tools are incredibly useful. At least get familiar with the basics, they're not as hard and scary as they seem.
 
 I think I can attribute my success in this instance to asking the right questions to the right people. I'm not great at debugging, but a lot of people around me are and were glad to help. Thank you to all my colleagues for helping me out when I was stuck, and answering my many questions. I'm extremely grateful to be able to learn from you.
+
+---
+
+### Edited 2025-12-27
+
+- Pointed out that `malloc` isn't guaranteed 16-byte aligned on all platforms.
+- Various language fixes.
+- Updated an `AAAAVSLL` to `AAAAVSTT` to be consistent with prior notation.
