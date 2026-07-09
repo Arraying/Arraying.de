@@ -1,65 +1,54 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>Posts on Paul Hübner</title>
-    <link>/posts/</link>
-    <description>Recent content in Posts on Paul Hübner</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en</language>
-    <copyright>© 2025 Paul Hübner</copyright>
-    <lastBuildDate>Sat, 18 Oct 2025 12:00:00 +0200</lastBuildDate><atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Help, My Java Object Vanished (and the GC is Not at Fault)</title>
-      <link>/posts/markword/</link>
-      <pubDate>Sat, 18 Oct 2025 12:00:00 +0200</pubDate>
-      
-      <guid>/posts/markword/</guid>
-      <description>&lt;p&gt;Today I&amp;rsquo;m going to talk about a recent journey as a HotSpot Java Virtual Machine developer working on the OpenJDK project. While running tests for a new feature, I realized my Java objects and classes were arbitrarily disappearing! What followed was probably the most interesting debugging and fixing experience of my life (so far), which I wanted to share with the world.&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>GC-Agnostic Load Barriers</title>
-      <link>/posts/thesis/</link>
-      <pubDate>Wed, 27 Aug 2025 18:00:00 +0100</pubDate>
-      
-      <guid>/posts/thesis/</guid>
-      <description>&lt;p&gt;What are GC barriers and how do they relate to ahead-of-time compilation? This blog post explores the intersection of HotSpot&amp;rsquo;s GCs and compilers through the lense of implementing GC-agnostic load barriers at the assembly level, and gives key insights on performance and overall takeaways.&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>Thoughts on Functional Programming</title>
-      <link>/posts/state/</link>
-      <pubDate>Fri, 14 Mar 2025 21:33:12 +0100</pubDate>
-      
-      <guid>/posts/state/</guid>
-      <description>&lt;p&gt;One of the earliest frustrations I encountered in programming was that I had to re-do stuff I had already done before, maybe 6-12 months after first starting.
-Often writing similar code that was just about different enough to make copy/paste or reuse tricky is not fun, especially when the novelty factor is gone.
-Not to mention all the Java boilerplate&amp;hellip;&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>Candor: A Simple and Powerful CI Ecosystem</title>
-      <link>/posts/candor/</link>
-      <pubDate>Fri, 07 Jul 2023 17:11:47 +0200</pubDate>
-      
-      <guid>/posts/candor/</guid>
-      <description>&lt;p&gt;Candor is a CI ecosystem - a dashboard with runners - that not only caters to my needs but is also a manifestation of what happens when I let my passion
-and perfectionism get the better of me.
-Behind it is a multi-year process, months of active development, fuelled by caffeine and sheer commitment.
-If you would like to check it out, &lt;a href=&#34;https://github.com/Arraying/Candor&#34;&gt;you can view the project on GitHub&lt;/a&gt;.&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>Building the Best Anti-Fraud Bot You&#39;ve Never Heard Of</title>
-      <link>/posts/antifraud/</link>
-      <pubDate>Sat, 06 Nov 2021 18:30:54 +0100</pubDate>
-      
-      <guid>/posts/antifraud/</guid>
-      <description>&lt;p&gt;I made a Discord bot that will automatically detect fraudulent Steam/Nitro links on Discord, and ban the person sending these.
-The impressive part: it works on never-before seen links, and its false-positive and false-negative rate is &lt;em&gt;ridiculously&lt;/em&gt; low.
-It&amp;rsquo;s totally open source and you can protect your server too!
-Check out the &lt;a href=&#34;#installation&#34;&gt;Installation&lt;/a&gt; section if you are interested.&lt;/p&gt;</description>
-    </item>
-    
-  </channel>
+	<channel>
+		<title>Posts on Paul Hübner</title>
+		<link>/posts/</link>
+		<description>Recent content in Posts on Paul Hübner</description>
+		<generator>Hugo</generator>
+		<language>en-us</language>
+		
+		
+		
+			<copyright>© 2026 Paul Hübner</copyright>
+		
+		
+			<lastBuildDate>Sat, 18 Oct 2025 12:00:00 +0200</lastBuildDate>
+		
+			<atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
+			<item>
+				<title>Help, My Java Object Vanished (and the GC is Not at Fault)</title>
+				<link>/posts/markword/</link>
+				<pubDate>Sat, 18 Oct 2025 12:00:00 +0200</pubDate>
+				<guid>/posts/markword/</guid>
+				<description>&lt;p&gt;Today I&amp;rsquo;m going to talk about a recent journey as a HotSpot Java Virtual Machine developer working on the OpenJDK project. While running tests for a new feature, I realized my Java objects and classes were arbitrarily disappearing! What followed was probably the most interesting debugging and fixing experience of my life (so far), which I wanted to share with the world.&lt;/p&gt;</description>
+			</item>
+			<item>
+				<title>GC-Agnostic Load Barriers</title>
+				<link>/posts/thesis/</link>
+				<pubDate>Wed, 27 Aug 2025 18:00:00 +0100</pubDate>
+				<guid>/posts/thesis/</guid>
+				<description>&lt;p&gt;What are GC barriers and how do they relate to ahead-of-time compilation? This blog post explores the intersection of HotSpot&amp;rsquo;s GCs and compilers through the lense of implementing GC-agnostic load barriers at the assembly level, and gives key insights on performance and overall takeaways.&lt;/p&gt;</description>
+			</item>
+			<item>
+				<title>Thoughts on Functional Programming</title>
+				<link>/posts/state/</link>
+				<pubDate>Fri, 14 Mar 2025 21:33:12 +0100</pubDate>
+				<guid>/posts/state/</guid>
+				<description>&lt;p&gt;One of the earliest frustrations I encountered in programming was that I had to re-do stuff I had already done before, maybe 6-12 months after first starting.&#xA;Often writing similar code that was just about different enough to make copy/paste or reuse tricky is not fun, especially when the novelty factor is gone.&#xA;Not to mention all the Java boilerplate&amp;hellip;&lt;/p&gt;</description>
+			</item>
+			<item>
+				<title>Candor: A Simple and Powerful CI Ecosystem</title>
+				<link>/posts/candor/</link>
+				<pubDate>Fri, 07 Jul 2023 17:11:47 +0200</pubDate>
+				<guid>/posts/candor/</guid>
+				<description>&lt;p&gt;Candor is a CI ecosystem - a dashboard with runners - that not only caters to my needs but is also a manifestation of what happens when I let my passion&#xA;and perfectionism get the better of me.&#xA;Behind it is a multi-year process, months of active development, fuelled by caffeine and sheer commitment.&#xA;If you would like to check it out, &lt;a href=&#34;https://github.com/Arraying/Candor&#34;&gt;you can view the project on GitHub&lt;/a&gt;.&lt;/p&gt;</description>
+			</item>
+			<item>
+				<title>Building the Best Anti-Fraud Bot You&#39;ve Never Heard Of</title>
+				<link>/posts/antifraud/</link>
+				<pubDate>Sat, 06 Nov 2021 18:30:54 +0100</pubDate>
+				<guid>/posts/antifraud/</guid>
+				<description>&lt;p&gt;I made a Discord bot that will automatically detect fraudulent Steam/Nitro links on Discord, and ban the person sending these.&#xA;The impressive part: it works on never-before seen links, and its false-positive and false-negative rate is &lt;em&gt;ridiculously&lt;/em&gt; low.&#xA;It&amp;rsquo;s totally open source and you can protect your server too!&#xA;Check out the &lt;a href=&#34;/posts/antifraud/#installation&#34;&gt;Installation&lt;/a&gt; section if you are interested.&lt;/p&gt;</description>
+			</item>
+	</channel>
 </rss>

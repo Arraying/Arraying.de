@@ -1,30 +1,33 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>jvm on Paul Hübner</title>
-    <link>/tags/jvm/</link>
-    <description>Recent content in jvm on Paul Hübner</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en</language>
-    <copyright>© 2025 Paul Hübner</copyright>
-    <lastBuildDate>Sat, 18 Oct 2025 12:00:00 +0200</lastBuildDate><atom:link href="/tags/jvm/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Help, My Java Object Vanished (and the GC is Not at Fault)</title>
-      <link>/posts/markword/</link>
-      <pubDate>Sat, 18 Oct 2025 12:00:00 +0200</pubDate>
-      
-      <guid>/posts/markword/</guid>
-      <description>&lt;p&gt;Today I&amp;rsquo;m going to talk about a recent journey as a HotSpot Java Virtual Machine developer working on the OpenJDK project. While running tests for a new feature, I realized my Java objects and classes were arbitrarily disappearing! What followed was probably the most interesting debugging and fixing experience of my life (so far), which I wanted to share with the world.&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>GC-Agnostic Load Barriers</title>
-      <link>/posts/thesis/</link>
-      <pubDate>Wed, 27 Aug 2025 18:00:00 +0100</pubDate>
-      
-      <guid>/posts/thesis/</guid>
-      <description>&lt;p&gt;What are GC barriers and how do they relate to ahead-of-time compilation? This blog post explores the intersection of HotSpot&amp;rsquo;s GCs and compilers through the lense of implementing GC-agnostic load barriers at the assembly level, and gives key insights on performance and overall takeaways.&lt;/p&gt;</description>
-    </item>
-    
-  </channel>
+	<channel>
+		<title>Jvm on Paul Hübner</title>
+		<link>/tags/jvm/</link>
+		<description>Recent content in Jvm on Paul Hübner</description>
+		<generator>Hugo</generator>
+		<language>en-us</language>
+		
+		
+		
+			<copyright>© 2026 Paul Hübner</copyright>
+		
+		
+			<lastBuildDate>Sat, 18 Oct 2025 12:00:00 +0200</lastBuildDate>
+		
+			<atom:link href="/tags/jvm/index.xml" rel="self" type="application/rss+xml" />
+			<item>
+				<title>Help, My Java Object Vanished (and the GC is Not at Fault)</title>
+				<link>/posts/markword/</link>
+				<pubDate>Sat, 18 Oct 2025 12:00:00 +0200</pubDate>
+				<guid>/posts/markword/</guid>
+				<description>&lt;p&gt;Today I&amp;rsquo;m going to talk about a recent journey as a HotSpot Java Virtual Machine developer working on the OpenJDK project. While running tests for a new feature, I realized my Java objects and classes were arbitrarily disappearing! What followed was probably the most interesting debugging and fixing experience of my life (so far), which I wanted to share with the world.&lt;/p&gt;</description>
+			</item>
+			<item>
+				<title>GC-Agnostic Load Barriers</title>
+				<link>/posts/thesis/</link>
+				<pubDate>Wed, 27 Aug 2025 18:00:00 +0100</pubDate>
+				<guid>/posts/thesis/</guid>
+				<description>&lt;p&gt;What are GC barriers and how do they relate to ahead-of-time compilation? This blog post explores the intersection of HotSpot&amp;rsquo;s GCs and compilers through the lense of implementing GC-agnostic load barriers at the assembly level, and gives key insights on performance and overall takeaways.&lt;/p&gt;</description>
+			</item>
+	</channel>
 </rss>

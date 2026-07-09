@@ -6,7 +6,7 @@
   
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Today I&amp;rsquo;m going to talk about a recent journey as a HotSpot Java Virtual Machine developer working on the OpenJDK project. While running tests for a new feature, I realized my Java objects and classes were arbitrarily disappearing! What followed was probably the most interesting debugging and fixing experience of my life (so far), which I wanted to share with the world.
+<meta name="description" content="Today I&rsquo;m going to talk about a recent journey as a HotSpot Java Virtual Machine developer working on the OpenJDK project. While running tests for a new feature, I realized my Java objects and classes were arbitrarily disappearing! What followed was probably the most interesting debugging and fixing experience of my life (so far), which I wanted to share with the world.
 " />
 <meta name="keywords" content="computer science, programming, technology" />
 
@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css">
 
   
-  <link rel="stylesheet" href="/css/code.min.4f0ccc8439f99bf7f7970298556b94011aabc1fcae743b6842fc3361a2da9ea3.css">
+  <link rel="stylesheet" href="/css/code.min.a9e6b5022319d0adb78ac8a282e21c5d3bd651bc12301a4122f9d67aed809e2a.css">
 
   
   <link rel="stylesheet" href="/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css">
@@ -49,7 +49,7 @@
   <link rel="stylesheet" href="/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css">
 
   
-  <link rel="stylesheet" href="/css/syntax.min.a0773cce9310cb6d8ed23e50f005448facf29a53001b57e038828daa466b25c0.css">
+  <link rel="stylesheet" href="/css/syntax.min.a2cc694a9b481f15d41722bffc2cc54eea4c4f74fd9072b0b33253604c22606e.css">
 
   
   <link rel="stylesheet" href="/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css">
@@ -74,7 +74,7 @@
 <meta property="og:locale" content="en" />
 <meta property="og:type" content="article" />
 <meta property="og:title" content="Help, My Java Object Vanished (and the GC is Not at Fault)">
-<meta property="og:description" content="Today I&amp;rsquo;m going to talk about a recent journey as a HotSpot Java Virtual Machine developer working on the OpenJDK project. While running tests for a new feature, I realized my Java objects and classes were arbitrarily disappearing! What followed was probably the most interesting debugging and fixing experience of my life (so far), which I wanted to share with the world.
+<meta property="og:description" content="Today I&rsquo;m going to talk about a recent journey as a HotSpot Java Virtual Machine developer working on the OpenJDK project. While running tests for a new feature, I realized my Java objects and classes were arbitrarily disappearing! What followed was probably the most interesting debugging and fixing experience of my life (so far), which I wanted to share with the world.
 " />
 <meta property="og:url" content="/posts/markword/" />
 <meta property="og:site_name" content="Paul Hübner" />
@@ -280,23 +280,23 @@
 	at com.sun.javatest.regtest.agent.MainActionHelper$AgentVMRunnable.run(MainActionHelper.java:335)
 	at java.base/java.lang.Thread.run(Thread.java:1474)
 </code></pre><p>What&rsquo;s very curious about this failure is if you check <a href="https://github.com/testng-team/testng/blob/d50b2ad2d6809d52131a07071fe229b1b901e08c/testng-core/src/main/java/org/testng/ClassMethodMap.java#L46">the source code</a>, they actually perform a null check on the variable <code>l</code>, so it shouldn&rsquo;t just disappear!</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">removeAndCheckIfLast</span><span class="o">(</span><span class="n">ITestNGMethod</span> <span class="n">m</span><span class="o">,</span> <span class="n">Object</span> <span class="n">instance</span><span class="o">)</span> <span class="o">{</span>
-</span></span><span class="line"><span class="cl">  <span class="n">Collection</span><span class="o">&lt;</span><span class="n">ITestNGMethod</span><span class="o">&gt;</span> <span class="n">l</span> <span class="o">=</span> <span class="n">classMap</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">instance</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="o">(</span><span class="n">l</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
-</span></span><span class="line"><span class="cl">    <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalStateException</span><span class="o">(</span>
-</span></span><span class="line"><span class="cl">        <span class="s">&#34;Could not find any methods associated with test class instance &#34;</span> <span class="o">+</span> <span class="n">instance</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl">  <span class="o">}</span>
-</span></span><span class="line"><span class="cl">  <span class="n">l</span><span class="o">.</span><span class="na">remove</span><span class="o">(</span><span class="n">m</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl">  <span class="c1">// It&#39;s the last method of this class if all the methods remaining in the list belong to a
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// different class
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">for</span> <span class="o">(</span><span class="n">ITestNGMethod</span> <span class="n">tm</span> <span class="o">:</span> <span class="n">l</span><span class="o">)</span> <span class="o">{</span> <span class="c1">// &lt;- AssertionError thrown here
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="o">(</span><span class="n">tm</span><span class="o">.</span><span class="na">getEnabled</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="n">tm</span><span class="o">.</span><span class="na">getTestClass</span><span class="o">().</span><span class="na">equals</span><span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">getTestClass</span><span class="o">()))</span> <span class="o">{</span>
-</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
-</span></span><span class="line"><span class="cl">    <span class="o">}</span>
-</span></span><span class="line"><span class="cl">  <span class="o">}</span>
-</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
-</span></span><span class="line"><span class="cl"><span class="o">}</span>
-</span></span></code></pre></div><h3 id="symptom-c-javalangnoclassdeffounderror">Symptom C: <code>java.lang.NoClassDefFoundError</code><a href="#symptom-c-javalangnoclassdeffounderror" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">removeAndCheckIfLast</span><span class="p">(</span><span class="n">ITestNGMethod</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="w"> </span><span class="n">instance</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">Collection</span><span class="o">&lt;</span><span class="n">ITestNGMethod</span><span class="o">&gt;</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">classMap</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">instance</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">l</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">IllegalStateException</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="s">&#34;Could not find any methods associated with test class instance &#34;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">instance</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">l</span><span class="p">.</span><span class="na">remove</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c1">// It&#39;s the last method of this class if all the methods remaining in the list belong to a</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c1">// different class</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">ITestNGMethod</span><span class="w"> </span><span class="n">tm</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">l</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// &lt;- AssertionError thrown here</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tm</span><span class="p">.</span><span class="na">getEnabled</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">tm</span><span class="p">.</span><span class="na">getTestClass</span><span class="p">().</span><span class="na">equals</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="na">getTestClass</span><span class="p">()))</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><h3 id="symptom-c-javalangnoclassdeffounderror">Symptom C: <code>java.lang.NoClassDefFoundError</code><a href="#symptom-c-javalangnoclassdeffounderror" class="hanchor" ariaLabel="Anchor">#</a> </h3>
 <p>A few tests within <code>sun/security/krb5</code> such as <a href="https://github.com/openjdk/valhalla/blob/a687d94e6afcb5326f558f196dcefe2dbbc72b10/test/jdk/sun/security/krb5/etype/UnsupportedKeyType.java"><code>sun/security/krb5/etype/UnsupportedKeyType.java</code></a> failed with a <code>NoClassDefFoundError</code>. The actual class that could not be found differed between tests and even between test runs of the same test. Classic intermittent shenanigans.</p>
 <pre tabindex="0"><code>java.lang.NoClassDefFoundError: sun/security/krb5/internal/Krb5
 	at java.base/jdk.internal.loader.NativeLibraries.load(Native Method)
@@ -309,7 +309,7 @@
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">EXPECT_TRUE</span><span class="p">(</span><span class="n">mark</span><span class="p">.</span><span class="n">decode_pointer</span><span class="p">()</span> <span class="o">==</span> <span class="k">nullptr</span><span class="p">);</span>
 </span></span></code></pre></div><p>Where <code>mark</code> is the <code>markWord</code> of a value object. Taking a look at the source code:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// Recover address of oop from encoded form used in mark
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kr">inline</span> <span class="kt">void</span><span class="o">*</span> <span class="nf">decode_pointer</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+</span></span></span><span class="line"><span class="cl"><span class="kr">inline</span> <span class="kt">void</span><span class="o">*</span> <span class="nf">decode_pointer</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="p">(</span><span class="n">EnableValhalla</span> <span class="o">&amp;&amp;</span> <span class="n">_value</span> <span class="o">&lt;</span> <span class="n">static_prototype_value_max</span><span class="p">)</span> <span class="o">?</span> <span class="k">nullptr</span> <span class="o">:</span>
 </span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span> <span class="p">(</span><span class="n">clear_lock_bits</span><span class="p">().</span><span class="n">value</span><span class="p">());</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
@@ -365,55 +365,55 @@
 <p>There are six garbage collectors in the source code, though those that get shipped depends on your JDK vendor. My personal configuration include Serial &amp; Parallel<sup id="fnref:11"><a href="#fn:11" class="footnote-ref" role="doc-noteref">11</a></sup>, G1<sup id="fnref:12"><a href="#fn:12" class="footnote-ref" role="doc-noteref">12</a></sup>, and Z<sup id="fnref:13"><a href="#fn:13" class="footnote-ref" role="doc-noteref">13</a></sup>.</p>
 <p>The table below shows how I generally target components. Initial trial-and-error found that the tests mentioned above would usually fail within five runs. So, I repeated each experiment 20 times.</p>
 <table>
-<thead>
-<tr>
-<th>Component to target</th>
-<th>JVM flags</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Interpreter</td>
-<td><code>-Xint</code></td>
-<td>Forces all code to be run in the interpreter.</td>
-</tr>
-<tr>
-<td>C1 only, trivial methods</td>
-<td><code>-Xcomp -XX:TieredStopAtLevel=1</code></td>
-<td>Forces JIT compilation of <em>everything</em>, and stops after C1 compiling trivial methods.</td>
-</tr>
-<tr>
-<td>C1 only, fully compiled</td>
-<td><code>-Xcomp -XX:TieredStopAtLevel=3</code></td>
-<td>Same as above, but with more profiling.</td>
-</tr>
-<tr>
-<td>C2 only</td>
-<td><code>-Xcomp -XX:-TieredCompilation</code></td>
-<td>Compilation without tiers forces C2.</td>
-</tr>
-<tr>
-<td>Serial GC</td>
-<td><code>-XX:+UseSerialGC</code></td>
-<td>Tells HotSpot to use Serial.</td>
-</tr>
-<tr>
-<td>Parallel GC</td>
-<td><code>-XX:+UseParallelGC</code></td>
-<td>Tells HotSpot to use Parallel.</td>
-</tr>
-<tr>
-<td>G1 GC</td>
-<td><code>-XX:+UseG1GC</code></td>
-<td>Tells HotSpot to use G1, though this is the default in most cases.</td>
-</tr>
-<tr>
-<td>Z GC</td>
-<td><code>-XX:+UseZGC</code></td>
-<td>Tells HotSpot to use Z.</td>
-</tr>
-</tbody>
+	<thead>
+			<tr>
+					<th>Component to target</th>
+					<th>JVM flags</th>
+					<th>Description</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>Interpreter</td>
+					<td><code>-Xint</code></td>
+					<td>Forces all code to be run in the interpreter.</td>
+			</tr>
+			<tr>
+					<td>C1 only, trivial methods</td>
+					<td><code>-Xcomp -XX:TieredStopAtLevel=1</code></td>
+					<td>Forces JIT compilation of <em>everything</em>, and stops after C1 compiling trivial methods.</td>
+			</tr>
+			<tr>
+					<td>C1 only, fully compiled</td>
+					<td><code>-Xcomp -XX:TieredStopAtLevel=3</code></td>
+					<td>Same as above, but with more profiling.</td>
+			</tr>
+			<tr>
+					<td>C2 only</td>
+					<td><code>-Xcomp -XX:-TieredCompilation</code></td>
+					<td>Compilation without tiers forces C2.</td>
+			</tr>
+			<tr>
+					<td>Serial GC</td>
+					<td><code>-XX:+UseSerialGC</code></td>
+					<td>Tells HotSpot to use Serial.</td>
+			</tr>
+			<tr>
+					<td>Parallel GC</td>
+					<td><code>-XX:+UseParallelGC</code></td>
+					<td>Tells HotSpot to use Parallel.</td>
+			</tr>
+			<tr>
+					<td>G1 GC</td>
+					<td><code>-XX:+UseG1GC</code></td>
+					<td>Tells HotSpot to use G1, though this is the default in most cases.</td>
+			</tr>
+			<tr>
+					<td>Z GC</td>
+					<td><code>-XX:+UseZGC</code></td>
+					<td>Tells HotSpot to use Z.</td>
+			</tr>
+	</tbody>
 </table>
 <p>I didn&rsquo;t actually re-run all the possible compiler and GC combinations possible (16 total). Instead, <strong>I assumed that there was no interaction between compilers and GC</strong> and that they could be tested independently. Why? I had played around with heap sizes and it seemed to have no effect on failure frequency. Generally, <strong>smaller heaps mean more frequent garbage collection</strong> and a higher likelihood of manifesting. Just to be clear, this was a gamble overall, as <strong>no interaction is not always guaranteed</strong> and if was wrong I&rsquo;d end up wasting a lot of time and resources.</p>
 <p>So, what did I actually do? <em>Did my gamble pay off?</em></p>
@@ -463,18 +463,18 @@
 <p>I decided to go down the <strong>first route</strong>. The second route is <em>probably better</em> if there are interactions between methods that cause the issues. However, it takes longer to get to a result, so I decided to take a bet on the first method.</p>
 <p>So how does one actually control compilations? By using <code>-XX:CompileCommand</code><sup id="fnref:16"><a href="#fn:16" class="footnote-ref" role="doc-noteref">16</a></sup>. With this, I can specify if I <em>only</em> want to compile a specific method, or if I want to <em>exclude</em> another method. For example, <code>-XX:CompileCommand=compileonly,java.lang.Enum::ordinal</code> ensures that <strong>if HotSpot decides to compile</strong> <code>Enum::ordinal</code>, this is the only compiled method. Similarly, <code>-XX:CompileCommand=exclude,java.lang.Enum::ordinal</code> ensures that HotSpot will <strong>never compile it</strong>. Since we are only compiling with C2 (<code>-XX:-TieredCompilation</code> flag), these <code>CompileCommand</code>s control C2&rsquo;s behavior.</p>
 <p>Having gathered all compiled methods from <code>-XX:+PrintCompilation</code>, after preprocessing<sup id="fnref:17"><a href="#fn:17" class="footnote-ref" role="doc-noteref">17</a></sup>, I wrote a little script to automate the search process. The gist of the script is as follows:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// main(String[] args), while iterating through all methods:
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">String</span> <span class="n">flag</span> <span class="o">=</span> <span class="s">&#34;-XX:CompileCommand=compileonly,&#34;</span> <span class="o">+</span> <span class="n">method</span><span class="o">;</span>
-</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">(!</span><span class="n">run</span><span class="o">(</span><span class="n">flag</span><span class="o">))</span> <span class="o">{</span>
-</span></span><span class="line"><span class="cl">    <span class="n">System</span><span class="o">.</span><span class="na">err</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Failure for &#34;</span> <span class="o">+</span> <span class="n">method</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl"><span class="o">}</span>
-</span></span><span class="line"><span class="cl"><span class="c1">// run(String otherFlags):
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">ProcessBuilder</span> <span class="n">pb</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ProcessBuilder</span><span class="o">(</span>
-</span></span><span class="line"><span class="cl">    <span class="s">&#34;bash&#34;</span><span class="o">,</span>
-</span></span><span class="line"><span class="cl">    <span class="s">&#34;-c&#34;</span><span class="o">,</span>
-</span></span><span class="line"><span class="cl">    <span class="s">&#34;cd ~/valhalla &amp;&amp; make test TEST=\&#34;&#34;</span> <span class="o">+</span> <span class="n">TEST</span> <span class="o">+</span> <span class="s">&#34;\&#34; JTREG=\&#34;REPEAT_COUNT=5;VM_OPTIONS=-XX:-TieredCompilation -XX:+PrintCompilation &#34;</span> <span class="o">+</span> <span class="n">otherFlags</span> <span class="o">+</span> <span class="s">&#34;\&#34;&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="o">);</span>
-</span></span></code></pre></div><p>Delightfully, it produced a result:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// main(String[] args), while iterating through all methods:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">String</span><span class="w"> </span><span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#34;-XX:CompileCommand=compileonly,&#34;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">method</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">run</span><span class="p">(</span><span class="n">flag</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">err</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&#34;Failure for &#34;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">method</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// run(String otherFlags):</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">ProcessBuilder</span><span class="w"> </span><span class="n">pb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ProcessBuilder</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="s">&#34;bash&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="s">&#34;-c&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="s">&#34;cd ~/valhalla &amp;&amp; make test TEST=\&#34;&#34;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">TEST</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&#34;\&#34; JTREG=\&#34;REPEAT_COUNT=5;VM_OPTIONS=-XX:-TieredCompilation -XX:+PrintCompilation &#34;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">otherFlags</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&#34;\&#34;&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><p>Delightfully, it produced a result:</p>
 <pre tabindex="0"><code>Failure for java.util.concurrent.ConcurrentHashMap::get
 </code></pre><p>So, something related to <code>ConcurrentHashMap::get</code> was causing the problem! At this point, it&rsquo;s <strong>still unclear if there is a miscompilation</strong> or the bug simply manifests in relation to this compiled method. But at least, I now knew a little bit more about where to look.</p>
 <h3 id="inlining">Inlining<a href="#inlining" class="hanchor" ariaLabel="Anchor">#</a> </h3>
@@ -509,7 +509,7 @@
 <p>Instead, I had to think at a higher level. C2, like many compilers, optimizes on an intermediate representation (IR). Programs get transformed into an IR that is not Java bytecode, but not yet machine code. C2&rsquo;s IR is a big graph, called Sea of Nodes<sup id="fnref:20"><a href="#fn:20" class="footnote-ref" role="doc-noteref">20</a></sup>. It performs optimizations by doing transformation and analysis passes over the IR. Using the <a href="https://github.com/openjdk/jdk/tree/master/src/utils/IdealGraphVisualizer">Ideal Graph Visualizer</a> I was able to take a diff between the graph of <code>ConcurrentHashMap::get</code> with <code>UseObjectMonitorTable</code> enbled and disabled, for the first and last optimization passes. For context, this method produced about 400 nodes and 1000+ edges, which is why I don&rsquo;t have a screenshot. The <strong>diff yielded no interesting changes</strong> unfortunately. While some nodes had differences, these could be attributed to different addresses or branch probabilities.</p>
 <p><strong>Was this not a miscompilation after all?</strong> Was the actual issue deeper in the runtime and the bug just mainfested in this compilation unit? While I learned which feature flag was responsible, it still didn&rsquo;t explain what was going on.</p>
 <h3 id="the-bitmask">The Bitmask<a href="#the-bitmask" class="hanchor" ariaLabel="Anchor">#</a> </h3>
-<p>I needed to understand what <code>UseObjectMonitorTable</code> actually does. Crudely put, an object monitor is used for locking and sychronization. The <a href="https://wiki.openjdk.org/display/HotSpot/Synchronization+Using+The+ObjectMonitorTable">wiki page</a> based on the <a href="https://github.com/openjdk/jdk/pull/20067">pull request</a> was a helpful starting point. To understand my bug only the first line of the PR is relevant (inflating is a state of the <code>markWord</code>):</p>
+<p>I needed to understand what <code>UseObjectMonitorTable</code> actually does. Crudely put, an object monitor is used for locking and sychronization. The <a href="https://wiki.openjdk.org/display/HotSpot/Synchronization&#43;Using&#43;The&#43;ObjectMonitorTable">wiki page</a> based on the <a href="https://github.com/openjdk/jdk/pull/20067">pull request</a> was a helpful starting point. To understand my bug only the first line of the PR is relevant (inflating is a state of the <code>markWord</code>):</p>
 <blockquote>
 <p>When inflating a monitor the ObjectMonitor* is written directly over the markWord and any overwritten data is displaced into a displaced markWord.</p>
 </blockquote>
@@ -523,7 +523,7 @@
 <p>In the end though, attaching didn&rsquo;t help much. It did indicate that some threads were waiting, with a lightweight locking mode (what this means is irrelevant), which made us look at the <a href="https://github.com/openjdk/valhalla/blob/a687d94e6afcb5326f558f196dcefe2dbbc72b10/src/hotspot/share/opto/library_call.cpp#L5365">intrinsic</a> again in detail. Specifically, the <code>LM_LIGHTWEIGHT</code>. Note that the misaligned comment is a faithful reproduction of the source code.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  <span class="c1">// Test the header to see if it is safe to read w.r.t. locking.
 </span></span></span><span class="line"><span class="cl"><span class="c1">// This also serves as guard against inline types
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">Node</span> <span class="o">*</span><span class="n">lock_mask</span>      <span class="o">=</span> <span class="n">_gvn</span><span class="p">.</span><span class="n">MakeConX</span><span class="p">(</span><span class="n">markWord</span><span class="o">::</span><span class="n">inline_type_mask_in_place</span><span class="p">);</span>
+</span></span></span><span class="line"><span class="cl">  <span class="n">Node</span> <span class="o">*</span><span class="n">lock_mask</span>      <span class="o">=</span> <span class="n">_gvn</span><span class="p">.</span><span class="n">MakeConX</span><span class="p">(</span><span class="n">markWord</span><span class="o">::</span><span class="n">inline_type_mask_in_place</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">  <span class="n">Node</span> <span class="o">*</span><span class="n">lmasked_header</span> <span class="o">=</span> <span class="n">_gvn</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="k">new</span> <span class="n">AndXNode</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">lock_mask</span><span class="p">));</span>
 </span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">LockingMode</span> <span class="o">==</span> <span class="n">LM_LIGHTWEIGHT</span><span class="p">)</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="n">Node</span> <span class="o">*</span><span class="n">monitor_val</span>   <span class="o">=</span> <span class="n">_gvn</span><span class="p">.</span><span class="n">MakeConX</span><span class="p">(</span><span class="n">markWord</span><span class="o">::</span><span class="n">monitor_value</span><span class="p">);</span>
@@ -665,7 +665,7 @@
     <footer class="footer">
     <div class="footer__inner">
         <div class="copyright copyright--user">
-            <div>© 2025 Paul Hübner. All opinions are my own, and may not reflect Oracle's.</div>
+            <div>© 2026 Paul Hübner. All opinions are my own, and may not reflect my employer's.</div>
             <div>
                 If you are an AI crawler, you must comply with the <a href="/ai-access-policy" target="_blank">AI access policy</a>.
             </div>

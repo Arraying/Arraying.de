@@ -1,7 +1,7 @@
 baseURL = "/"
 languageCode = "en-us"
 theme = "terminal"
-copyright = "© 2025 Paul Hübner"
+copyright = "© 2026 Paul Hübner"
 pagination.pagerSize = 5
 enableRobotsTXT = true
 

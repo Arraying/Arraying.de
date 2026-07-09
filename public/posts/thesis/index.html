@@ -6,7 +6,7 @@
   
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="What are GC barriers and how do they relate to ahead-of-time compilation? This blog post explores the intersection of HotSpot&amp;rsquo;s GCs and compilers through the lense of implementing GC-agnostic load barriers at the assembly level, and gives key insights on performance and overall takeaways.
+<meta name="description" content="What are GC barriers and how do they relate to ahead-of-time compilation? This blog post explores the intersection of HotSpot&rsquo;s GCs and compilers through the lense of implementing GC-agnostic load barriers at the assembly level, and gives key insights on performance and overall takeaways.
 " />
 <meta name="keywords" content="computer science, programming, technology" />
 
@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css">
 
   
-  <link rel="stylesheet" href="/css/code.min.4f0ccc8439f99bf7f7970298556b94011aabc1fcae743b6842fc3361a2da9ea3.css">
+  <link rel="stylesheet" href="/css/code.min.a9e6b5022319d0adb78ac8a282e21c5d3bd651bc12301a4122f9d67aed809e2a.css">
 
   
   <link rel="stylesheet" href="/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css">
@@ -49,7 +49,7 @@
   <link rel="stylesheet" href="/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css">
 
   
-  <link rel="stylesheet" href="/css/syntax.min.a0773cce9310cb6d8ed23e50f005448facf29a53001b57e038828daa466b25c0.css">
+  <link rel="stylesheet" href="/css/syntax.min.a2cc694a9b481f15d41722bffc2cc54eea4c4f74fd9072b0b33253604c22606e.css">
 
   
   <link rel="stylesheet" href="/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css">
@@ -74,7 +74,7 @@
 <meta property="og:locale" content="en" />
 <meta property="og:type" content="article" />
 <meta property="og:title" content="GC-Agnostic Load Barriers">
-<meta property="og:description" content="What are GC barriers and how do they relate to ahead-of-time compilation? This blog post explores the intersection of HotSpot&amp;rsquo;s GCs and compilers through the lense of implementing GC-agnostic load barriers at the assembly level, and gives key insights on performance and overall takeaways.
+<meta property="og:description" content="What are GC barriers and how do they relate to ahead-of-time compilation? This blog post explores the intersection of HotSpot&rsquo;s GCs and compilers through the lense of implementing GC-agnostic load barriers at the assembly level, and gives key insights on performance and overall takeaways.
 " />
 <meta property="og:url" content="/posts/thesis/" />
 <meta property="og:site_name" content="Paul Hübner" />
@@ -253,35 +253,35 @@ This is useful for caches, and is for example used by <a href="https://docs.orac
 <p>Presently, whenever a load occurs, strong or weak, a load barrier <em>may</em> be emitted <em>before</em> the field is dereferenced.
 Under which condition this happens is shown in the table below.</p>
 <table>
-<thead>
-<tr>
-<th>GC</th>
-<th>Strong load emits barrier?</th>
-<th>Weak load emits barrier?</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Serial</td>
-<td>❌ No</td>
-<td>❌ No</td>
-</tr>
-<tr>
-<td>Parallel</td>
-<td>❌ No</td>
-<td>❌ No</td>
-</tr>
-<tr>
-<td>G1</td>
-<td>❌ No</td>
-<td>✅ Yes</td>
-</tr>
-<tr>
-<td>Z</td>
-<td>✅ Yes</td>
-<td>✅ Yes</td>
-</tr>
-</tbody>
+	<thead>
+			<tr>
+					<th>GC</th>
+					<th>Strong load emits barrier?</th>
+					<th>Weak load emits barrier?</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>Serial</td>
+					<td>❌ No</td>
+					<td>❌ No</td>
+			</tr>
+			<tr>
+					<td>Parallel</td>
+					<td>❌ No</td>
+					<td>❌ No</td>
+			</tr>
+			<tr>
+					<td>G1</td>
+					<td>❌ No</td>
+					<td>✅ Yes</td>
+			</tr>
+			<tr>
+					<td>Z</td>
+					<td>✅ Yes</td>
+					<td>✅ Yes</td>
+			</tr>
+	</tbody>
 </table>
 <p>The takeaway here is that for both strong and weak loads, at least one GC emits a barrier.
 Therefore, a GC-agnostic load barrier must emit a load barrier at every strong and weak load.</p>
@@ -323,35 +323,35 @@ The same ideas apply to the weak load barrier, omitted for brevity, where the in
 Unsurprisingly, yes.
 When looking at execution time and P90 latencies, the <em>worst-case</em> regressions are shown in the table below:</p>
 <table>
-<thead>
-<tr>
-<th>GC</th>
-<th>Execution time regression</th>
-<th>P90 latency regression</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Serial</td>
-<td>17%</td>
-<td>15%</td>
-</tr>
-<tr>
-<td>Parallel</td>
-<td>19%</td>
-<td>17%</td>
-</tr>
-<tr>
-<td>G1</td>
-<td>17%</td>
-<td>20%</td>
-</tr>
-<tr>
-<td>Z</td>
-<td>23%</td>
-<td>39%</td>
-</tr>
-</tbody>
+	<thead>
+			<tr>
+					<th>GC</th>
+					<th>Execution time regression</th>
+					<th>P90 latency regression</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>Serial</td>
+					<td>17%</td>
+					<td>15%</td>
+			</tr>
+			<tr>
+					<td>Parallel</td>
+					<td>19%</td>
+					<td>17%</td>
+			</tr>
+			<tr>
+					<td>G1</td>
+					<td>17%</td>
+					<td>20%</td>
+			</tr>
+			<tr>
+					<td>Z</td>
+					<td>23%</td>
+					<td>39%</td>
+			</tr>
+	</tbody>
 </table>
 <p>These results are <strong>not necessarily bad!</strong>
 Many experiments only had single-digit percentage regressions.
@@ -381,7 +381,7 @@ Thanks to Ana Maria Mihalceanu and Antón Seoane Ampudia for feedback on this po
     <footer class="footer">
     <div class="footer__inner">
         <div class="copyright copyright--user">
-            <div>© 2025 Paul Hübner. All opinions are my own, and may not reflect Oracle's.</div>
+            <div>© 2026 Paul Hübner. All opinions are my own, and may not reflect my employer's.</div>
             <div>
                 If you are an AI crawler, you must comply with the <a href="/ai-access-policy" target="_blank">AI access policy</a>.
             </div>

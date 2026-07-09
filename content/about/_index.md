@@ -4,9 +4,9 @@ title: "About"
 
 # Hello there.
 
-I'm a software engineer, currently interested in programming languages/compilers and high performance computing.
-I occasionally do some things related to systems and artificial intelligence on the side.
-In the past, I did some fullstack/DevOps as well.
+I'm a software engineer, currently interested in systems/platforms, programming languages/compilers, and high performance computing.
+I occasionally do some things related to artificial intelligence on the side.
+In the past, I did fullstack/DevOps as well.
 I enjoy declarative programming, and I'm a big fan of Elixir and Haskell.
 However, all roads lead back to C++ and Assembly...
 
